@@ -1,7 +1,11 @@
-var rh        = require("./helpers/rendering")
-var hexToRgba = rh.hexToRgba
-var rgbaToHex = rh.rgbaToHex
-var rgbaToStr = rh.rgbaToStr
+var uuid      = require("node-uuid")
+var makeUuid  = uuid.v4
+
+var Entity = function Entity () {
+  return { 
+    uuid: makeUuid() 
+  }
+}
 
 function Vector2 (x,y) {
   return {
@@ -19,9 +23,8 @@ function Vector3 (x,y,z) {
 }
 
 var Point2 = Vector2
-var Point3 = Vector3
 
-var ColorHex = hexToRgba
+var Point3 = Vector3
 
 function ColorRgba (r,g,b,a) {
   return {
@@ -32,6 +35,7 @@ function ColorRgba (r,g,b,a) {
   }
 }
 
+module.exports.Entity    = Entity
 module.exports.Vector2   = Vector2
 module.exports.Vector3   = Vector3
 module.exports.Point2    = Point2

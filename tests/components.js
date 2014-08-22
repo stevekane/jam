@@ -1,21 +1,16 @@
-var _          = require("lodash")
-var compose    = _.compose
-var sequence   = _.sequence
-var test       = require("tape")
-var debug      = require("../helpers/debug")
-var types      = require("../types")
-var components = require("../components")
-var Vector3    = types.Vector3
-var Entity     = components.Entity
-var Size       = components.Size
-var Direction  = components.Direction
-
-test("Entity adds uuid field to object", function (t) {
-  var e = Entity()
-
-  t.plan(1)
-  t.true(!!e.uuid, "a uuid is correctly assiged in Entity constructor")
-})
+var _             = require("lodash")
+var compose       = _.compose
+var sequence      = _.sequence
+var test          = require("tape")
+var debug         = require("../helpers/debug")
+var types         = require("../engine/types")
+var components    = require("../engine/components")
+var Entity        = types.Entity
+var Vector3       = types.Vector3
+var ColorRgba     = types.ColorRgba
+var Size          = components.Size
+var Direction     = components.Direction
+var ColorFromRgba = components.ColorFromRgba
 
 test("Size adds correct size with vector3 to the entity", function (t) {
   var e = Size(Vector3(1,2,3), Entity())
@@ -33,4 +28,14 @@ test("Direction adds correct direction with vector3 to the entity", function (t)
   t.same(e.direction.x, 1, "x component set to 1 correctly")
   t.same(e.direction.y, 2, "y component set to 2 correctly")
   t.same(e.direction.z, 3, "z component set to 3 correctly")
+})
+
+test("ColorFromRgba adds correct color to the entity", function (t) {
+  var e = ColorFromRgba(ColorRgba(255, 255, 255, 1), Entity())
+
+  t.plan(4)
+  t.same(e.color.r, 255, "r component set to 255 correctly")
+  t.same(e.color.g, 255, "g component set to 255 correctly")
+  t.same(e.color.b, 255, "b component set to 255 correctly")
+  t.same(e.color.a, 1, "a component set to 1 correctly")
 })

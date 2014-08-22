@@ -1,12 +1,12 @@
 var pp          = require("../helpers/debug").pp
 var test        = require("tape")
-var components  = require("../components")
-var assemblages = require("../assemblages") 
+var components  = require("../engine/components")
+var assemblages = require("../engine/assemblages") 
 var Entity      = components.Entity
 var BasicBox    = assemblages.BasicBox
 
 test("BasicBox produces a composite entity", function (t) {
-  var bb = BasicBox(Entity())
+  var bb = BasicBox()
 
   t.plan(3)
   t.true(!!bb.size, "basic box has a size component")

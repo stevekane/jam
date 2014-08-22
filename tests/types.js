@@ -1,9 +1,17 @@
 var test    = require("tape")
-var types   = require("../types")
+var types   = require("../engine/types")
+var Entity  = types.Entity
 var Vector2 = types.Vector2
 var Vector3 = types.Vector3
 var Point2  = types.Point2
 var Point3  = types.Point3
+
+test("Entity adds uuid field to object", function (t) {
+  var e = Entity()
+
+  t.plan(1)
+  t.true(!!e.uuid, "a uuid is correctly assiged in Entity constructor")
+})
 
 test("Vector2 has x and y component set correctly", function (t) {
   var v2 = Vector2(1,2)

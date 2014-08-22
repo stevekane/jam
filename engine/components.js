@@ -1,5 +1,4 @@
 var _         = require("lodash")
-var uuid      = require("node-uuid")
 var types     = require("./types")
 var extend    = _.extend
 var clone     = _.clone
@@ -7,13 +6,6 @@ var curry     = _.curry
 var Vector3   = types.Vector3
 var Point3    = types.Point3
 var ColorRgba = types.ColorRgba
-var makeUuid  = uuid.v4
-
-var Entity = curry(function Entity () {
-  if (!(this instanceof Entity)) return new Entity
-
-  this.uuid = makeUuid()
-})
 
 var Size = curry(function Size (vector3, entity) {
   extend(entity, {size: clone(vector3)})
@@ -30,12 +22,11 @@ var Renderable = curry(function Renderable (fn, entity) {
   return entity
 })
 
-var ColorFromRgba = curry(function (r, g, b, a, entity) {
-  entity.color = ColorRgba(r, g, b, a)
+var ColorFromRgba = curry(function (rgba, entity) {
+  entity.color = rgba
   return entity
 })
 
-module.exports.Entity        = Entity
 module.exports.Size          = Size
 module.exports.Direction     = Direction
 module.exports.Renderable    = Renderable

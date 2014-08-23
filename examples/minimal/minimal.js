@@ -10,38 +10,9 @@ var makeRandRgba  = jam.utils.rendering.makeRandRgba
 var randomFloored = jam.utils.random.randomFloored
 var loadImage     = jam.loaders.loadImage
 var loadSound     = jam.loaders.loadSound
+var play          = jam.audioPlayer.play
 
-window.onload = function () {
-  var ac = new (AudioContext || webkitAudioContext)()
-
-  loadImage("/examples/assets/spritesheets/maptiles.png", function (err, image) {
-    if (err) return console.log(err)
-  })
-
-  loadSound("/examples/assets/sounds/hadouken.mp3", function (err, audioBinary) {
-    if (err) return console.log(err)
-
-    ac.decodeAudioData(audioBinary, function (buffer) {
-      var bs = ac.createBufferSource() 
-
-      bs.buffer = buffer
-      bs.connect(ac.destination)
-      //looping works as you might imagine..
-      //bs.loop = true
-      bs.start()
-    })
-  })
-}
-
-var e    = BasicBox(Point3(24,24,0))
-var ents = [e]
-var c    = document.createElement("canvas")
-var ctx  = c.getContext("2d")
-
-c.height = 480
-c.width  = 640
-document.body.appendChild(c)
-
+//SYSTEMS
 var renderSquare = function (ctx, e) {
   var rgbaStr = rgbaToStr(e.color)
 
@@ -62,36 +33,86 @@ var resize = function (e) {
   e.size = newSize
 }
 
-//SYSTEMS
 var clearScreen = function (ctx) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
 }
 
 var renderSquares = function (ctx, es) {
-  es
-  .filter(hasColor)
-  .forEach(renderSquare.bind(null, ctx))
+  es.filter(hasColor).forEach(function (e) { renderSquare(ctx, e) })
 }
 
-var changeColors = function (es) {
-  es
-  .filter(hasColor)
-  .forEach(changeColor)
+var changeColors = function (es) { 
+  es.filter(hasColor).forEach(changeColor)
 }
 
 var resizeAll = function (es) {
-  es
-  .filter(hasSize)
-  .forEach(resize)
+  es.filter(hasSize).forEach(resize)
 }
 //SYSTEMS -- END
 
-var run = function () {
-  resizeAll(ents)
-  changeColors(ents)
-  clearScreen(ctx)
-  renderSquares(ctx, ents)
-  raf(run)
+
+/* 
+ * Here we build a new audioContext, drawing contexts,
+ * ui (html), and cache for the main game state. 
+ * We will then load the assets required for this state
+ * into the new cache and then call our callback function
+*/
+var mainLoad = function (scenes, cb) {
+  var entityCanvas = document.createElement("canvas")
+  var sceneObjects = {
+    audioCtx: new (AudioContext || webkitAudioContext()),
+    layers: {
+      entities: entityCanvas.getContext("2d") 
+    },
+    entities: [BasicBox(Point3(24, 24, 0))],
+    cache: {
+      sounds:       {},
+      spriteSheets: {},
+      json:         {}
+    }
+  }
+
+  entityCanvas.height = 480
+  entityCanvas.width  = 640
+
+  document.body.appendChild(sceneObjects.layers.entities.canvas)
+
+  window.setTimeout(function () {
+    cb(sceneObjects) 
+  }, 2000)
 }
 
-raf(run)
+var mainPlay = function (sceneObjects) {
+  var layers   = sceneObjects.layers
+  var entities = sceneObjects.entities
+
+  resizeAll(entities)
+  changeColors(entities)
+  clearScreen(layers.entities)
+  renderSquares(layers.entities, entities)
+  raf(function () { mainPlay(sceneObjects) })
+}
+
+var mainPause = function () {}
+
+var bootstrap = function (cb) {
+  var scenes = {
+    main: {
+      assets: {
+        sounds: {
+          hadouken: "/examples/assets/sounds/hadouken.mp3"
+        },
+        spritesheets: {
+          maptiles: "/examples/assets/spritesheets/maptiles.png" 
+        }
+      },
+      load:  mainLoad,
+      play:  mainPlay,
+      pause: mainPause
+    } 
+  }
+
+  scenes.main.load(scenes, scenes.main.play)
+}
+
+window.onload = bootstrap

@@ -1,10 +1,15 @@
-module.exports.types       = require("./engine/types"),
-module.exports.components  = require("./engine/components"),
-module.exports.assemblages = require("./engine/assemblages"),
-module.exports.systems     = require("./engine/systems")
-module.exports.loaders     = require("./engine/loaders")
-module.exports.utils = {
+var jam = {}
+
+jam.types       = require("./engine/types"),
+jam.components  = require("./engine/components"),
+jam.assemblages = require("./engine/assemblages"),
+jam.systems     = require("./engine/systems")
+jam.loaders     = require("./engine/loaders")
+jam.audioPlayer = require("./engine/audioPlayer")
+jam.utils = {
   debug:     require("./helpers/debug"),
   rendering: require("./helpers/rendering"),
   random:    require("./helpers/random")
 }
+
+module.exports = jam

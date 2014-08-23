@@ -12,6 +12,11 @@ var Size = curry(function Size (vector3, entity) {
   return entity
 })
 
+var Position = curry(function Position (point3, entity) {
+  extend(entity, {position: clone(point3)})
+  return entity
+})
+
 var Direction = curry(function Direction (vector3, entity) {
   extend(entity, {direction: clone(vector3)})
   return entity
@@ -28,6 +33,7 @@ var ColorFromRgba = curry(function (rgba, entity) {
 })
 
 module.exports.Size          = Size
+module.exports.Position      = Position
 module.exports.Direction     = Direction
 module.exports.Renderable    = Renderable
 module.exports.ColorFromRgba = ColorFromRgba

@@ -6,6 +6,7 @@
   "scripts": {
     "test": "node tests.js",
     "build": "node scripts/build-lib.js",
+    "build-engine": "node scripts/build-engine.js",
     "build-vendor": "node scripts/build-vendor.js",
     "build-all": "node scripts/build-vendor.js && node scripts/build-lib.js"
   },
@@ -38,6 +39,7 @@
   },
   "dependencies": {
     "lodash": "^2.4.1",
-    "node-uuid": "^1.4.1"
+    "node-uuid": "^1.4.1",
+    "raf-shim": "0.0.1"
   }
 }

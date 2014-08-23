@@ -1,3 +1,6 @@
+var random        = require("./random")
+var randomFloored = random.randomFloored
+
 function hexToRgba (hex) {
   var r = parseInt(hex.slice(1,3), 16)
   var g = parseInt(hex.slice(3,5), 16)
@@ -11,18 +14,23 @@ function hexToRgba (hex) {
   }
 }
 
-function rgbaToHex (r, g, b) {
-  var rh = parseInt("0x" + r)
-  var gh = parseInt("0x" + g)
-  var bh = parseInt("0x" + b)
-
-  return 0xff000000 + (rh << 16) + (gh << 8) + bh
+function rgbaToStr (rgba) {
+  return "rgba(" + [rgba.r, rgba.g, rgba.b, rgba.a].join(",") + ")"
 }
 
-function rgbaToStr (r, g, b, a) {
-  return "rgba(" + [r,g,b,a].join(",") + ")"
+function randomFloored (max) {
+  return Math.round(Math.random() * max)
 }
 
-module.exports.hexToRgba = hexToRgba
-module.exports.rgbaToHex = rgbaToHex
-module.exports.rgbaToStr = rgbaToStr
+function makeRandRgba () {
+  return {
+    r: randomFloored(0, 255),
+    g: randomFloored(0, 255),
+    b: randomFloored(0, 255),
+    a: 1
+  }
+}
+
+module.exports.hexToRgba    = hexToRgba
+module.exports.rgbaToStr    = rgbaToStr
+module.exports.makeRandRgba = makeRandRgba

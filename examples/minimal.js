@@ -1,1 +1,0 @@
-var jam = require("../jam")

@@ -22,15 +22,11 @@ var renderSquare = function (ctx, e) {
 
 var hasColor    = function (e) { return !!e.color }
 var hasSize     = function (e) { return !!e.size }
+var doesCollide = function (e) { return !!e.collides }
 var changeColor = function (e) { e.color = makeRandRgba() }
 
 var resize = function (e) { 
-  var newSize = Point3(
-    randomFloored(0, 48),
-    randomFloored(0, 48),
-    randomFloored(0, 48))
-
-  e.size = newSize
+  e.size = Point3(randomFloored(24, 48), randomFloored(24, 48), 0)
 }
 
 var clearScreen = function (ctx) {
@@ -47,6 +43,10 @@ var changeColors = function (es) {
 
 var resizeAll = function (es) {
   es.filter(hasSize).forEach(resize)
+}
+
+var handleCollisions = function (es) {
+  es.filter(doesCollide)
 }
 //SYSTEMS -- END
 

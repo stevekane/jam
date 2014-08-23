@@ -27,6 +27,11 @@ var Renderable = curry(function Renderable (fn, entity) {
   return entity
 })
 
+var Collides = function Collides (entity) {
+  entity.collides = true
+  return entity 
+}
+
 var ColorFromRgba = curry(function (rgba, entity) {
   entity.color = rgba
   return entity
@@ -36,4 +41,5 @@ module.exports.Size          = Size
 module.exports.Position      = Position
 module.exports.Direction     = Direction
 module.exports.Renderable    = Renderable
+module.exports.Collides      = Collides
 module.exports.ColorFromRgba = ColorFromRgba

@@ -9,11 +9,11 @@ var BasicBox    = assemblages.BasicBox
 test("BasicBox produces a composite entity", function (t) {
   var bb = BasicBox()
 
-  t.plan(3)
+  t.plan(4)
   t.true(!!bb.size, "basic box has a size component")
   t.true(!!bb.position, "basic box has a position component")
   t.true(!!bb.color, "basic box has a color component")
-  pp(bb)
+  t.true(!!bb.collides, "basic box has a collides component")
 })
 
 test("BasicBox sets position to optionally provided point3", function (t) {
@@ -23,5 +23,4 @@ test("BasicBox sets position to optionally provided point3", function (t) {
   t.same(bb.position.x, 24, "BasicBox assigns correct x parameter")
   t.same(bb.position.y, 24, "BasicBox assigns correct y parameter")
   t.same(bb.position.z, 0, "BasicBox assigns correct z parameter")
-  pp(bb)
 })

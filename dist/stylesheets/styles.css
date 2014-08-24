@@ -1,0 +1,13 @@
+#game {
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#game canvas {
+  position: absolute;
+}
+
+#game .ui {
+  position: absolute;
+}

@@ -1,25 +1,21 @@
-var _     = require("lodash")
-var curry = _.curry
+var _      = require("lodash")
+var extend = _.extend
+var curry  = _.curry
 
 var wap = {}
 
-wap.play = curry(function (audioContext, cache, soundName) {
+var basePlay = curry(function (options, ac, cache, sName) {
   var bs     = createBufferSource()
   var buffer = cache[soundName] || cache.default
 
+  extend(bs, options)
   bs.buffer = buffer
   bs.connect(ac.destination)
   bs.start()
 })
 
-wap.loop = curry(function (audioContext, cache, soundName) {
-  var bs     = createBufferSource()
-  var buffer = cache[soundName] || cache.default
+wap.play = basePlay({})
 
-  bs.buffer = buffer
-  bs.loop   = true
-  bs.connect(ac.destination)
-  bs.start()
-})
+wap.loop = basePlay({loop: true})
 
 module.exports = wap

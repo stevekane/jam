@@ -9,7 +9,8 @@ jam.audioPlayer = require("./engine/audioPlayer")
 jam.utils = {
   debug:     require("./helpers/debug"),
   rendering: require("./helpers/rendering"),
-  random:    require("./helpers/random")
+  random:    require("./helpers/random"),
+  functions: require("./helpers/functions")
 }
 
 module.exports = jam

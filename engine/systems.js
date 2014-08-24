@@ -8,15 +8,14 @@ var systems        = {}
 function doesCollide (e) { return !!e.collides }
 
 systems.handleCollisions = function (es) {
+  var colliders  = filter(es, doesCollide)
   var collisions = []
 
-  forEach(filter(es, doesCollide), function (c1) {
+  forEach(colliders, function (c1) {
     forEach(colliders, function (c2) {
-      if (checkCollisioni(c1, c2)) collisions.push([c1, c2])
+      if (checkCollision(c1, c2)) collisions.push([c1, c2])
     })    
   });
-
-  console.log(collisions)
 }
 
 module.exports = systems

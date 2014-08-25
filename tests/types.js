@@ -1,5 +1,6 @@
 var test             = require("tape")
 var types            = require("../engine/types")
+var pp               = require("../helpers/debug").pp
 var Entity           = types.Entity
 var Vector2          = types.Vector2
 var Vector3          = types.Vector3
@@ -7,6 +8,8 @@ var Point2           = types.Point2
 var Point3           = types.Point3
 var Frame            = types.Frame
 var makeLinearFrames = types.makeLinearFrames
+var Animation        = types.Animation
+var AnimationState   = types.AnimationState
 
 test("Entity adds uuid field to object", function (t) {
   var e = Entity()
@@ -69,4 +72,43 @@ test("makeLinearFrames produces correct array of frames", function (t) {
   t.same(fs[0], expectedFirstFrame, "produces correct first frame")
   t.same(fs[1], expectedSecondFrame, "produces correct second frame")
   t.same(fs[2], expectedThirdFrame, "produces correct third frame")
+})
+
+test("Animation produces correct components", function (t) {
+  var settings = {
+    fps:        24,
+    shouldLoop: true 
+  }
+  var frames = makeLinearFrames(0, 24, 24, 24, 3)
+  var a      = Animation("test", "test.png", frames, settings)
+
+  t.plan(5)
+  t.same(a.name, "test", "name assigned correctly")
+  t.same(a.frames, frames, "frames assigned correctly")
+  t.same(a.spriteSheet, "test.png", "spriteSheet assigned correctly")
+  t.same(a.fps, 24, "fps assigned correctly")
+  t.same(a.shouldLoop, true, "shouldLoop assigned correctly")
+})
+
+test("AnimationState produces correct components", function (t) {
+  var jumpFrames  = makeLinearFrames(0, 24, 24, 24, 3)
+  var standFrames = makeLinearFrames(0, 48, 24, 24, 3)
+  var settings = {
+    fps:        24,
+    shouldLoop: true 
+  }
+  var animations = {
+    default: Animation("jump", "char.png", jumpFrames, settings),
+    jump:    Animation("jump", "char.png", jumpFrames, settings),
+    stand:   Animation("stand", "char.png", standFrames, settings) 
+  }
+  var as = AnimationState(animations)
+
+  t.plan(4)
+  t.same(as.defaultAnimation, animations.default, "sets defaultAnimation correctly")
+  t.same(as.currentIndex, null, "sets currentIndex correctly")
+  t.same(as.nextFrameDelta, null, "sets nextFrameDelta, correctly")
+  t.same(as.animations, animations, "sets animations correctly")
+
+  pp(as)
 })

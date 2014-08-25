@@ -54,15 +54,26 @@ types.makeLinearFrames = curry(function (xStart, y, w, h, total) {
   return reduce(makeFrame, initialAcc, range(total)).result
 })
 
-types.Animation = curry(function (spriteSheet, frames, settings) {
+types.Animation = curry(function (name, spriteSheet, frames, settings) {
   return {
-    frames:      frames
+    name:        name,
+    frames:      frames,
     spriteSheet: spriteSheet,
     shouldLoop:  settings.shouldLoop || false,
-    fps:         settings.fps || 24,
+    fps:         settings.fps || 24
   }  
 })
 
+types.AnimationState = function (animations) {
+  if (!animations.default) throw new Error("Invalid default animation provided")
+
+  return {
+    defaultAnimation: animations.default,
+    currentIndex:     null,
+    nextFrameDelta:   null,   
+    animations:       animations
+  }
+}
 
 types.Entity = function () {
   return { 

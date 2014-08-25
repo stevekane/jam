@@ -1,8 +1,7 @@
-var _      = require("lodash")
-var extend = _.extend
-var curry  = _.curry
-
-var wap = {}
+var fns    = require("../helpers/functions")
+var extend = fns.extend
+var curry  = fns.curry
+var wap    = {}
 
 var basePlay = curry(function (options, ac, cache, sName) {
   var bs     = createBufferSource()

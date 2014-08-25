@@ -1,4 +1,7 @@
-var loadXhr = function (type, path, cb) {
+var fns   = require("../helpers/functions")
+var curry = fns.curry
+
+var loadXhr = curry(function (type, path, cb) {
   var xhr     = new XMLHttpRequest
 
   xhr.responseType = type
@@ -6,9 +9,9 @@ var loadXhr = function (type, path, cb) {
   xhr.onerror      = function () { cb(new Error("Could not load " + path)) }
   xhr.open("GET", path, true)
   xhr.send(null)
-}
+})
 
-var loadImage = function (path, cb) {
+var loadImage = curry(function (path, cb) {
   var i       = new Image
   var onload  = function () { cb(null, i) }
   var onerror = function () { cb(new Error("Could not load " + path)) }
@@ -16,9 +19,9 @@ var loadImage = function (path, cb) {
   i.onload  = onload
   i.onerror = onerror
   i.src     = path
-}
+})
 
-var loadSound = function (path, cb) { loadXhr("arraybuffer", path, cb) }
+var loadSound = loadXhr("arraybuffer")
 
 module.exports.loadImage = loadImage
 module.exports.loadSound = loadSound

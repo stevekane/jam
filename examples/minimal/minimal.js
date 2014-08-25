@@ -1,13 +1,22 @@
 var raf              = require("raf-shim")(window).requestAnimationFrame
 var jam              = require("../../jam")
-var systems          = jam.systems
 var Entity           = jam.types.Entity
 var Point3           = jam.types.Point3
+var Layer            = jam.types.Layer
 var BasicBox         = jam.assemblages.BasicBox
-var handleCollisions = systems.handleCollisions
+var handleCollisions = jam.systems.handleCollisions
+var clearLayer       = jam.systems.clearLayer
+var extend           = jam.utils.functions.extend
+var compose          = jam.utils.functions.compose
 var mapBy            = jam.utils.functions.mapBy
+var forEach          = jam.utils.functions.forEach
+var reduce           = jam.utils.functions.reduce
+var curry            = jam.utils.functions.curry
+var hasKey           = jam.utils.functions.hasKey
+var ifThenDo         = jam.utils.functions.ifThenDo
+var ofSize           = jam.utils.functions.ofSize
+var runParallel      = jam.utils.async.runParallel
 var pp               = jam.utils.debug.pp
-var log              = jam.utils.debug.log
 var rgbaToStr        = jam.utils.rendering.rgbaToStr
 var makeRandRgba     = jam.utils.rendering.makeRandRgba
 var randomFloored    = jam.utils.random.randomFloored
@@ -16,40 +25,54 @@ var loadSound        = jam.loaders.loadSound
 var play             = jam.audioPlayer.play
 
 //SYSTEMS 
-var renderSquare = function (ctx, e) {
+var renderSquare = curry(function (ctx, e) {
   var rgbaStr = rgbaToStr(e.color)
 
   ctx.fillStyle = rgbaStr
   ctx.fillRect(e.position.x, e.position.y, e.size.x, e.size.y)
+})
+
+var renderBackground = function (ctx, bgImage) {
+  ctx.drawImage(bgImage, 0, 0, ctx.canvas.width, ctx.canvas.height)
 }
 
-var hasColor    = function (e) { return !!e.color }
-var hasSize     = function (e) { return !!e.size }
-var changeColor = function (e) { e.color = makeRandRgba() }
+var renderForeground = function (ctx, fgImage) {
+  ctx.drawImage(fgImage, 0, 0, ctx.canvas.width, ctx.canvas.height)
+}
+
+var hasColor    = hasKey("color") 
+var hasSize     = hasKey("size")
+var hasPosition = hasKey("position")
+
+var changeColor = function (e) { 
+  e.color = makeRandRgba() 
+  return e
+}
 
 var drawUi = function (ui) {
   ui.innerHTML = "Here is your UI friend"  
 }
 
 var resize = function (e) { 
-  e.size = Point3(randomFloored(24, 48), randomFloored(24, 48), 0)
+  e.size.x = randomFloored(24, 32)
+  e.size.y = randomFloored(24, 32)
+  return e
 }
 
-var clearScreen = function (ctx) {
-  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+var relocate = function (e) {
+  e.position.x = randomFloored(0, 300)
+  e.position.y = randomFloored(0, 300)
+  return e
 }
 
-var renderSquares = function (ctx, es) {
-  es.filter(hasColor).forEach(function (e) { renderSquare(ctx, e) })
-}
+var renderSquares = curry(function (ctx, es) {
+  ifThenDo(hasColor, renderSquare(ctx), es)
+  return es
+})
 
-var changeColors = function (es) { 
-  es.filter(hasColor).forEach(changeColor)
-}
-
-var resizeAll = function (es) {
-  es.filter(hasSize).forEach(resize)
-}
+var changeColors = ifThenDo(hasColor, changeColor)
+var resizeAll    = ifThenDo(hasSize, resize)
+var relocateAll  = ifThenDo(hasPosition, relocate)
 
 //SYSTEMS -- END
 
@@ -75,6 +98,12 @@ var hashLayers = function (layers) {
   }, {})
 }
 
+//Special Constructors
+
+var makeRandomBox = compose([relocate, BasicBox])
+
+//Special Constructors -- END
+
 //DOM interactions -- END
 
 /* 
@@ -84,18 +113,22 @@ var hashLayers = function (layers) {
  * into the new cache and then call our callback function
 */
 var mainLoad = function (scenes, cb) {
-  var height      = 480
-  var width       = 640
-  var targetNode  = document.querySelector("#game")
-  var ui          = document.createElement("div")
-  var layers      = [
-    {name: "entities", ctx: document.createElement("canvas").getContext("2d") },
+  var spriteSheets = scenes.main.assets.spriteSheets
+  var sounds       = scenes.main.assets.sounds
+  var height       = 480
+  var width        = 640
+  var targetNode   = document.querySelector("#game")
+  var ui           = document.createElement("div")
+  var layers       = [
+    Layer("2d", "background"),
+    Layer("2d", "entities"),
+    Layer("2d", "foreground")
   ]
   var sceneObjects = {
     audioCtx: new (AudioContext || webkitAudioContext()),
     ui:       ui,
     layers:   hashLayers(layers),
-    entities: [BasicBox(Point3(24, 24, 0)), BasicBox(Point3(12, 12, 0))],
+    entities: ofSize(10, makeRandomBox),
     cache: {
       spriteSheets: {},
       sounds:       {},
@@ -103,30 +136,41 @@ var mainLoad = function (scenes, cb) {
     }
   }
 
-  targetNode.style.width    = width
-  targetNode.style.height   = height
+  targetNode.style.width  = width
+  targetNode.style.height = height
   layers.forEach(function (l) { attachLayer(targetNode, l) })
   attachUi(targetNode, ui)
 
-  window.setTimeout(function () {
-    cb(sceneObjects) 
-  }, 2000)
+  runParallel({
+    bg:       loadImage(spriteSheets.bg),
+    fg:       loadImage(spriteSheets.fg),
+    maptiles: loadImage(spriteSheets.maptiles)
+  }, function (err, images) {
+    if (err) console.log(err)
+    else     extend(sceneObjects.cache.spriteSheets, images) 
+    cb(scenes, sceneObjects)
+  })
 }
 
-var mainPlay = function (sceneObjects) {
+var mainPlay = function (scenes, sceneObjects) {
   var layers   = sceneObjects.layers
   var entities = sceneObjects.entities
 
+  //relocateAll(entities)
   //resizeAll(entities)
-  changeColors(entities)
+  //changeColors(entities)
   handleCollisions(entities)
-  clearScreen(layers.entities)
+  clearLayer(layers.entities)
+  clearLayer(layers.background)
+  clearLayer(layers.foreground)
+  renderBackground(layers.background, sceneObjects.cache.spriteSheets.bg)
   renderSquares(layers.entities, entities)
+  renderForeground(layers.foreground, sceneObjects.cache.spriteSheets.fg)
   drawUi(sceneObjects.ui)
-  raf(function () { mainPlay(sceneObjects) })
+  raf(function () { mainPlay(scenes, sceneObjects) })
 }
 
-var mainPause = function () {}
+var mainPause = function (scenes, sceneObjects) {}
 
 var bootstrap = function (cb) {
   var scenes = {
@@ -135,8 +179,10 @@ var bootstrap = function (cb) {
         sounds: {
           hadouken: "/examples/assets/sounds/hadouken.mp3"
         },
-        spritesheets: {
-          maptiles: "/examples/assets/spritesheets/maptiles.png" 
+        spriteSheets: {
+          maptiles: "/examples/assets/spritesheets/maptiles.png",
+          bg:       "/examples/assets/spritesheets/fantasy-bg.jpg",
+          fg:       "/examples/assets/spritesheets/fg-tree-small.png" 
         }
       },
       load:  mainLoad,

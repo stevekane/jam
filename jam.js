@@ -10,7 +10,8 @@ jam.utils = {
   debug:     require("./helpers/debug"),
   rendering: require("./helpers/rendering"),
   random:    require("./helpers/random"),
-  functions: require("./helpers/functions")
+  functions: require("./helpers/functions"),
+  async:     require("./helpers/async")
 }
 
 module.exports = jam

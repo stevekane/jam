@@ -6,6 +6,7 @@ var path       = require('path')
 browserify({debug: true})
   .require("lodash")
   .require("node-uuid")
+  .require("async")
   .bundle()
   .on('error', function (err) { console.error(err); })
   .pipe(fs.createWriteStream(bundlePath));

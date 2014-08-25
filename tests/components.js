@@ -1,6 +1,3 @@
-var _             = require("lodash")
-var compose       = _.compose
-var sequence      = _.sequence
 var test          = require("tape")
 var debug         = require("../helpers/debug")
 var types         = require("../engine/types")

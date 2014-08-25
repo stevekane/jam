@@ -35,28 +35,32 @@ types.Frame = curry(function (x, y, w, h) {
 })
 
 /*
-  constructor for an array of frames whish assumes that all framees for
+  constructor for an array of frames which assumes that all frames for
   an animation are linearly laid out in a spritesheet
-  
-  you can therefore create the frames for an animation in this way
-  makeLinearFrames(x, y, w, h, total)
 */
 types.makeLinearFrames = curry(function (xStart, y, w, h, total) {
   var initialAcc = {
     xPos:   xStart,
     result: []
   }
-  var makeFrame = curry(function (acc, el) {
-    acc.result.push(types.Frame(acc.xPos, y, w, h))
+  var makeFrame = function (acc, el) {
+    var newFrame = types.Frame(acc.xPos, y, w, h)
+
+    acc.result.push(newFrame)
     acc.xPos += w
     return acc
-  })
+  }
 
   return reduce(makeFrame, initialAcc, range(total)).result
 })
 
-types.Animation = curry(function (sheetName, frames, settings) {
-   
+types.Animation = curry(function (spriteSheet, frames, settings) {
+  return {
+    frames:      frames
+    spriteSheet: spriteSheet,
+    shouldLoop:  settings.shouldLoop || false,
+    fps:         settings.fps || 24,
+  }  
 })
 
 

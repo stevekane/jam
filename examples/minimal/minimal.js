@@ -3,6 +3,7 @@ var jam              = require("../../jam")
 var Entity           = jam.types.Entity
 var Point3           = jam.types.Point3
 var Layer            = jam.types.Layer
+var Cache            = jam.types.Cache
 var BasicBox         = jam.assemblages.BasicBox
 var handleCollisions = jam.systems.handleCollisions
 var clearLayer       = jam.systems.clearLayer
@@ -32,13 +33,13 @@ var renderSquare = curry(function (ctx, e) {
   ctx.fillRect(e.position.x, e.position.y, e.size.x, e.size.y)
 })
 
-var renderBackground = function (ctx, bgImage) {
+var renderBackground = curry(function (ctx, bgImage) {
   ctx.drawImage(bgImage, 0, 0, ctx.canvas.width, ctx.canvas.height)
-}
+})
 
-var renderForeground = function (ctx, fgImage) {
+var renderForeground = curry(function (ctx, fgImage) {
   ctx.drawImage(fgImage, 0, 0, ctx.canvas.width, ctx.canvas.height)
-}
+})
 
 var hasColor    = hasKey("color") 
 var hasSize     = hasKey("size")
@@ -54,8 +55,8 @@ var drawUi = function (ui) {
 }
 
 var resize = function (e) { 
-  e.size.x = randomFloored(24, 32)
-  e.size.y = randomFloored(24, 32)
+  e.size.x = randomFloored(2, 8)
+  e.size.y = randomFloored(2, 8)
   return e
 }
 
@@ -77,18 +78,22 @@ var relocateAll  = ifThenDo(hasPosition, relocate)
 //SYSTEMS -- END
 
 
-var attachUi = function (target, el) {
+var attachUi = curry(function (target, el) {
   target.appendChild(el)
   el.style.width  = target.style.width
   el.style.height = target.style.height
-}
+})
 
 //DOM interactions
-var attachLayer = function (target, l) {
+var attachLayer = curry(function (target, l) {
   target.appendChild(l.ctx.canvas)
   l.ctx.canvas.style.width  = target.style.width
   l.ctx.canvas.style.height = target.style.height
-}
+})
+
+var attachLayers = curry(function (target, layers) {
+  forEach(attachLayer(target), layers)
+})
 
 //converts lists of layers into hash of layers by name -> ctx
 var hashLayers = function (layers) {
@@ -128,27 +133,32 @@ var mainLoad = function (scenes, cb) {
     audioCtx: new (AudioContext || webkitAudioContext()),
     ui:       ui,
     layers:   hashLayers(layers),
-    entities: ofSize(10, makeRandomBox),
-    cache: {
-      spriteSheets: {},
-      sounds:       {},
-      json:         {}
-    }
+    entities: ofSize(1000, makeRandomBox),
+    cache:    Cache()
   }
 
   targetNode.style.width  = width
   targetNode.style.height = height
-  layers.forEach(function (l) { attachLayer(targetNode, l) })
+  attachLayers(targetNode, layers)
   attachUi(targetNode, ui)
 
   runParallel({
-    bg:       loadImage(spriteSheets.bg),
-    fg:       loadImage(spriteSheets.fg),
-    maptiles: loadImage(spriteSheets.maptiles)
-  }, function (err, images) {
-    if (err) console.log(err)
-    else     extend(sceneObjects.cache.spriteSheets, images) 
-    cb(scenes, sceneObjects)
+    images: runParallel({
+      bg:       loadImage(spriteSheets.bg),
+      fg:       loadImage(spriteSheets.fg),
+      maptiles: loadImage(spriteSheets.maptiles)
+    }),
+    sounds: runParallel({
+      hadouken: loadSound(sounds.hadouken)  
+    })
+  }, function (err, assets) {
+    if (err) {
+      console.log(err)
+    } else {
+      extend(sceneObjects.cache.spriteSheets, assets.images) 
+      extend(sceneObjects.cache.spriteSheets, assets.sounds) 
+      cb(scenes, sceneObjects)
+    }
   })
 }
 
@@ -156,10 +166,14 @@ var mainPlay = function (scenes, sceneObjects) {
   var layers   = sceneObjects.layers
   var entities = sceneObjects.entities
 
-  //relocateAll(entities)
-  //resizeAll(entities)
-  //changeColors(entities)
+  //UPDATES
+  resizeAll(entities)
+  changeColors(entities)
+  relocateAll(entities)
   handleCollisions(entities)
+  //UPDATES -- END
+
+  //RENDERING
   clearLayer(layers.entities)
   clearLayer(layers.background)
   clearLayer(layers.foreground)
@@ -167,6 +181,8 @@ var mainPlay = function (scenes, sceneObjects) {
   renderSquares(layers.entities, entities)
   renderForeground(layers.foreground, sceneObjects.cache.spriteSheets.fg)
   drawUi(sceneObjects.ui)
+  //RENDERING -- END
+
   raf(function () { mainPlay(scenes, sceneObjects) })
 }
 

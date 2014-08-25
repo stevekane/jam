@@ -15,6 +15,15 @@ types.Layer = curry(function (contextType, name) {
 
 //DOM TYPES -- END
 
+types.Cache = function () {
+  return {
+    spriteSheets: {}, 
+    sounds:       {}, 
+    json:         {}
+  }
+}
+
+
 types.Entity = function () {
   return { 
     uuid: makeUuid() 

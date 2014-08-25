@@ -2,6 +2,8 @@ var uuid     = require("node-uuid")
 var fns      = require("../helpers/functions")
 var makeUuid = uuid.v4
 var curry    = fns.curry
+var range    = fns.range
+var reduce   = fns.reduce
 var types    = {}
 
 //DOM TYPES
@@ -22,6 +24,40 @@ types.Cache = function () {
     json:         {}
   }
 }
+
+types.Frame = curry(function (x, y, w, h) {
+  return {
+    x: x,
+    y: y,
+    w: w,
+    h: h 
+  }
+})
+
+/*
+  constructor for an array of frames whish assumes that all framees for
+  an animation are linearly laid out in a spritesheet
+  
+  you can therefore create the frames for an animation in this way
+  makeLinearFrames(x, y, w, h, total)
+*/
+types.makeLinearFrames = curry(function (xStart, y, w, h, total) {
+  var initialAcc = {
+    xPos:   xStart,
+    result: []
+  }
+  var makeFrame = curry(function (acc, el) {
+    acc.result.push(types.Frame(acc.xPos, y, w, h))
+    acc.xPos += w
+    return acc
+  })
+
+  return reduce(makeFrame, initialAcc, range(total)).result
+})
+
+types.Animation = curry(function (sheetName, frames, settings) {
+   
+})
 
 
 types.Entity = function () {

@@ -3,14 +3,13 @@ var extend = fns.extend
 var curry  = fns.curry
 var wap    = {}
 
-var basePlay = curry(function (options, ac, cache, sName) {
-  var bs     = createBufferSource()
-  var buffer = cache[soundName] || cache.default
+var basePlay = curry(function (options, ac, buffer) {
+  var bs     = ac.createBufferSource()
 
   extend(bs, options)
   bs.buffer = buffer
   bs.connect(ac.destination)
-  bs.start()
+  bs.start(0)
 })
 
 wap.play = basePlay({})

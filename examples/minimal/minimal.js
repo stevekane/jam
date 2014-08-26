@@ -29,6 +29,7 @@ var randomFloored    = jam.utils.random.randomFloored
 var loadImage        = jam.loaders.loadImage
 var loadSound        = jam.loaders.loadSound
 var play             = jam.audioPlayer.play
+var loop             = jam.audioPlayer.loop
 
 //SYSTEMS 
 var renderSquare = curry(function (layer, e) {
@@ -48,7 +49,7 @@ var changeColor = function (e) {
 }
 
 var drawUi = function (ui) {
-  ui.innerHTML = "Here is your UI friend"  
+  ui.innerHTML = "Waiting it out.."  
 }
 
 var resize = function (e) { 
@@ -93,6 +94,7 @@ var mainLoad = function (scenes, cb) {
   var sounds       = scenes.main.assets.sounds
   var height       = 480
   var width        = 640
+  var audioCtx     = new (AudioContext || webkitAudioContext)()
   var targetNode   = document.querySelector("#game")
   var ui           = document.createElement("div")
   var layers       = {
@@ -101,7 +103,7 @@ var mainLoad = function (scenes, cb) {
     foreground: Layer2d("foreground", 2)
   }
   var sceneObjects = {
-    audioCtx: new (AudioContext || webkitAudioContext)(),
+    audioCtx: audioCtx,
     ui:       ui,
     layers:   layers,
     entities: ofSize(1000, makeRandomBox),
@@ -120,19 +122,20 @@ var mainLoad = function (scenes, cb) {
     images: runParallel({
       bg:       loadImage(spriteSheets.bg),
       fg:       loadImage(spriteSheets.fg),
-      maptiles: loadImage(spriteSheets.maptiles)
+      maptiles: loadImage(spriteSheets.maptiles),
+      //raindrop: loadImage(spriteSheets.raindrop)
     }),
     sounds: runParallel({
-      hadouken: loadSound(sounds.hadouken)  
+      bgMusic:  loadSound(audioCtx, sounds.bgMusic),
+      hadouken: loadSound(audioCtx, sounds.hadouken)  
     })
   }, function (err, assets) {
-    if (err) {
-      console.log(err)
-    } else {
-      extend(sceneObjects.cache.spriteSheets, assets.images) 
-      extend(sceneObjects.cache.spriteSheets, assets.sounds) 
-      cb(scenes, sceneObjects)
-    }
+    if (err) return console.log(err)
+
+    play(audioCtx, assets.sounds.hadouken)
+    extend(sceneObjects.cache.spriteSheets, assets.images) 
+    extend(sceneObjects.cache.spriteSheets, assets.sounds) 
+    cb(scenes, sceneObjects)
   })
 }
 
@@ -167,12 +170,14 @@ var bootstrap = function (cb) {
     main: {
       assets: {
         sounds: {
+          bgMusic:  "/examples/assets/sounds/bgm1.mp3",
           hadouken: "/examples/assets/sounds/hadouken.mp3"
         },
         spriteSheets: {
           maptiles: "/examples/assets/spritesheets/maptiles.png",
           bg:       "/examples/assets/spritesheets/fantasy-bg.jpg",
-          fg:       "/examples/assets/spritesheets/fg-tree-small.png" 
+          fg:       "/examples/assets/spritesheets/fg-tree-small.png",
+          //raindrop: "/examples/assets/spritesheets/raindrop.png",
         }
       },
       load:  mainLoad,

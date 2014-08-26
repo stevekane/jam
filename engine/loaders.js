@@ -21,7 +21,18 @@ var loadImage = curry(function (path, cb) {
   i.src     = path
 })
 
-var loadSound = loadXhr("arraybuffer")
+var loadSound = curry(function (audioCtx, path, cb) {
+  loadXhr("arraybuffer", path, function (err, binary) {
+    if (err) return cb(err)
+
+    var decodeSuccess = function (buffer) {
+      cb(null, buffer)   
+    }
+    var decodeFailure = cb
+
+    audioCtx.decodeAudioData(binary, decodeSuccess, decodeFailure)
+  })
+})
 
 module.exports.loadImage = loadImage
 module.exports.loadSound = loadSound

@@ -64,7 +64,7 @@ functions.reduce = functions.curry(function (fn, accum, ar) {
 })
 
 functions.forEach = functions.curry(function (fn, ar) {
-  for (i in ar) { fn(ar[i]) }
+  for (i in ar) { fn(ar[i], i) }
   return ar
 })
 
@@ -94,6 +94,34 @@ functions.ofSize = functions.curry(function (size, fn) {
 functions.ifThenDo = functions.curry(function (boolFn, fn, ar) {
   for (i in ar) { if (boolFn(ar[i])) { fn(ar[i]) }}
   return ar
+})
+
+functions.forKeys = functions.curry(function (kFn, hash) {
+  var ks = functions.keys(hash)
+  var i = 0
+
+  for (i = 0, len = ks.length; i < len; ++i) {
+    kFn(ks[i])
+  }
+})
+
+functions.forValues = functions.curry(function (vFn, hash) {
+  var ks = functions.keys(hash)
+  var i = 0
+
+  for (i = 0, len = ks.length; i < len; ++i) {
+    vFn(hash[ks[i]])
+  }
+})
+
+//kvFn :: k -> v -> nothing (it's forEach baby)
+functions.forKV = functions.curry(function (kvFn, hash) {
+  var ks = functions.keys(hash)
+  var i = 0
+
+  for (i = 0, len = ks.length; i < len; ++i) {
+    kvFn(ks[i], hash[ks[i]]) 
+  }
 })
 
 module.exports = functions

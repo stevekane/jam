@@ -7,9 +7,12 @@ var Vector3          = types.Vector3
 var Point2           = types.Point2
 var Point3           = types.Point3
 var Frame            = types.Frame
-var makeLinearFrames = types.makeLinearFrames
+var linearFrames     = types.linearFrames
 var Animation        = types.Animation
+var linearAnimation  = types.linearAnimation
 var AnimationState   = types.AnimationState
+var Layer            = types.Layer
+var Layer2d          = types.Layer2d
 
 test("Entity adds uuid field to object", function (t) {
   var e = Entity()
@@ -62,11 +65,11 @@ test("Frame has x, y, w, h components set correctly", function (t) {
   t.same(f.h, 24, "h component set correctly")
 })
 
-test("makeLinearFrames produces correct array of frames", function (t) {
+test("linearFrames produces correct array of frames", function (t) {
   var expectedFirstFrame  = Frame(0, 24, 24, 24)
   var expectedSecondFrame = Frame(24, 24, 24, 24)
   var expectedThirdFrame  = Frame(48, 24, 24, 24)
-  var fs                  = makeLinearFrames(0, 24, 24, 24, 3)
+  var fs                  = linearFrames(0, 24, 24, 24, 3)
 
   t.plan(3) 
   t.same(fs[0], expectedFirstFrame, "produces correct first frame")
@@ -79,7 +82,7 @@ test("Animation produces correct components", function (t) {
     fps:        24,
     shouldLoop: true 
   }
-  var frames = makeLinearFrames(0, 24, 24, 24, 3)
+  var frames = linearFrames(0, 24, 24, 24, 3)
   var a      = Animation("test", "test.png", frames, settings)
 
   t.plan(5)
@@ -90,9 +93,26 @@ test("Animation produces correct components", function (t) {
   t.same(a.shouldLoop, true, "shouldLoop assigned correctly")
 })
 
+test("linearAnimation produces correct components", function (t) {
+  var settings = {
+    fps:        24,
+    shouldLoop: true 
+  }
+  var a = linearAnimation("test", "test.png", 0, 24, 24, 24, 3, settings)
+  
+  t.plan(5)
+  t.same(a.name, "test", "name assigned correctly")
+  t.same(a.spriteSheet, "test.png", "spriteSheet assigned correctly")
+  t.same(a.fps, 24, "fps assigned correctly")
+  t.same(a.shouldLoop, true, "shouldLoop assigned correctly")
+  t.true(!!a.frames,  "defines array of frames")
+
+  pp(a)
+})
+
 test("AnimationState produces correct components", function (t) {
-  var jumpFrames  = makeLinearFrames(0, 24, 24, 24, 3)
-  var standFrames = makeLinearFrames(0, 48, 24, 24, 3)
+  var jumpFrames  = linearFrames(0, 24, 24, 24, 3)
+  var standFrames = linearFrames(0, 48, 24, 24, 3)
   var settings = {
     fps:        24,
     shouldLoop: true 
@@ -109,6 +129,14 @@ test("AnimationState produces correct components", function (t) {
   t.same(as.currentIndex, null, "sets currentIndex correctly")
   t.same(as.nextFrameDelta, null, "sets nextFrameDelta, correctly")
   t.same(as.animations, animations, "sets animations correctly")
-
-  pp(as)
 })
+
+//TODO
+//This test would need to run inside the DOM.  This should be split out?
+//test("Layer produces correct components", function (t) {
+//})
+
+//TODO
+//This test would need to run inside the DOM.  This should be split out?
+//test("Layer2d produces correct components", function (t) {
+//})

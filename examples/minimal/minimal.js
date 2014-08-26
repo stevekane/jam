@@ -2,15 +2,20 @@ var raf              = require("raf-shim")(window).requestAnimationFrame
 var jam              = require("../../jam")
 var Entity           = jam.types.Entity
 var Point3           = jam.types.Point3
-var Layer            = jam.types.Layer
+var Layer2d          = jam.types.Layer2d
 var Cache            = jam.types.Cache
 var BasicBox         = jam.assemblages.BasicBox
 var handleCollisions = jam.systems.handleCollisions
 var clearLayer       = jam.systems.clearLayer
+var attachLayer      = jam.systems.attachLayer
+var attachUi         = jam.systems.attachUi
+var renderImageLayer = jam.systems.renderImageLayer
 var extend           = jam.utils.functions.extend
 var compose          = jam.utils.functions.compose
 var mapBy            = jam.utils.functions.mapBy
 var forEach          = jam.utils.functions.forEach
+var forValues        = jam.utils.functions.forValues
+var values           = jam.utils.functions.values
 var reduce           = jam.utils.functions.reduce
 var curry            = jam.utils.functions.curry
 var hasKey           = jam.utils.functions.hasKey
@@ -26,19 +31,11 @@ var loadSound        = jam.loaders.loadSound
 var play             = jam.audioPlayer.play
 
 //SYSTEMS 
-var renderSquare = curry(function (ctx, e) {
+var renderSquare = curry(function (layer, e) {
   var rgbaStr = rgbaToStr(e.color)
 
-  ctx.fillStyle = rgbaStr
-  ctx.fillRect(e.position.x, e.position.y, e.size.x, e.size.y)
-})
-
-var renderBackground = curry(function (ctx, bgImage) {
-  ctx.drawImage(bgImage, 0, 0, ctx.canvas.width, ctx.canvas.height)
-})
-
-var renderForeground = curry(function (ctx, fgImage) {
-  ctx.drawImage(fgImage, 0, 0, ctx.canvas.width, ctx.canvas.height)
+  layer.ctx.fillStyle = rgbaStr
+  layer.ctx.fillRect(e.position.x, e.position.y, e.size.x, e.size.y)
 })
 
 var hasColor    = hasKey("color") 
@@ -78,38 +75,12 @@ var relocateAll  = ifThenDo(hasPosition, relocate)
 //SYSTEMS -- END
 
 
-var attachUi = curry(function (target, el) {
-  target.appendChild(el)
-  el.style.width  = target.style.width
-  el.style.height = target.style.height
-})
-
-//DOM interactions
-var attachLayer = curry(function (target, l) {
-  target.appendChild(l.ctx.canvas)
-  l.ctx.canvas.style.width  = target.style.width
-  l.ctx.canvas.style.height = target.style.height
-})
-
-var attachLayers = curry(function (target, layers) {
-  forEach(attachLayer(target), layers)
-})
-
-//converts lists of layers into hash of layers by name -> ctx
-var hashLayers = function (layers) {
-  return layers.reduce(function (hash, l) {
-    hash[l.name] = l.ctx
-    return hash
-  }, {})
-}
 
 //Special Constructors
 
 var makeRandomBox = compose([relocate, BasicBox])
 
 //Special Constructors -- END
-
-//DOM interactions -- END
 
 /* 
  * Here we build a new audioContext, drawing contexts,
@@ -124,22 +95,25 @@ var mainLoad = function (scenes, cb) {
   var width        = 640
   var targetNode   = document.querySelector("#game")
   var ui           = document.createElement("div")
-  var layers       = [
-    Layer("2d", "background"),
-    Layer("2d", "entities"),
-    Layer("2d", "foreground")
-  ]
+  var layers       = {
+    background: Layer2d("background", 0), 
+    entities:   Layer2d("entities", 1),
+    foreground: Layer2d("foreground", 2)
+  }
   var sceneObjects = {
-    audioCtx: new (AudioContext || webkitAudioContext()),
+    audioCtx: new (AudioContext || webkitAudioContext)(),
     ui:       ui,
-    layers:   hashLayers(layers),
+    layers:   layers,
     entities: ofSize(1000, makeRandomBox),
     cache:    Cache()
   }
 
+  ui.style.zIndex         = 99
+  ui.style.color          = "white"
+  ui.className            = "ui"
   targetNode.style.width  = width
   targetNode.style.height = height
-  attachLayers(targetNode, layers)
+  forValues(attachLayer(targetNode), layers)
   attachUi(targetNode, ui)
 
   runParallel({
@@ -177,9 +151,9 @@ var mainPlay = function (scenes, sceneObjects) {
   clearLayer(layers.entities)
   clearLayer(layers.background)
   clearLayer(layers.foreground)
-  renderBackground(layers.background, sceneObjects.cache.spriteSheets.bg)
+  renderImageLayer(layers.background, sceneObjects.cache.spriteSheets.bg)
   renderSquares(layers.entities, entities)
-  renderForeground(layers.foreground, sceneObjects.cache.spriteSheets.fg)
+  renderImageLayer(layers.foreground, sceneObjects.cache.spriteSheets.fg)
   drawUi(sceneObjects.ui)
   //RENDERING -- END
 

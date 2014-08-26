@@ -8,12 +8,15 @@ var types    = {}
 
 //DOM TYPES
 
-types.Layer = curry(function (contextType, name) {
+types.Layer = curry(function (contextType, name, level) {
   return {
-    name: name,
-    ctx:  document.createElement("canvas").getContext(contextType)
+    name:  name,
+    level: level,
+    ctx:   document.createElement("canvas").getContext(contextType)
   }
 })
+
+types.Layer2d = types.Layer("2d")
 
 //DOM TYPES -- END
 
@@ -38,7 +41,7 @@ types.Frame = curry(function (x, y, w, h) {
   constructor for an array of frames which assumes that all frames for
   an animation are linearly laid out in a spritesheet
 */
-types.makeLinearFrames = curry(function (xStart, y, w, h, total) {
+types.linearFrames = curry(function (xStart, y, w, h, total) {
   var initialAcc = {
     xPos:   xStart,
     result: []
@@ -54,14 +57,21 @@ types.makeLinearFrames = curry(function (xStart, y, w, h, total) {
   return reduce(makeFrame, initialAcc, range(total)).result
 })
 
-types.Animation = curry(function (name, spriteSheet, frames, settings) {
+types.Animation = curry(function (name, spriteSheet, frames, opts) {
   return {
     name:        name,
     frames:      frames,
     spriteSheet: spriteSheet,
-    shouldLoop:  settings.shouldLoop || false,
-    fps:         settings.fps || 24
+    shouldLoop:  opts.shouldLoop || false,
+    fps:         opts.fps || 24
   }  
+})
+
+//alternative constructor assuming linear layout of frames
+types.linearAnimation = curry(function (name, spriteSheet, x, y, w, h, total, opts) {
+  var frames = types.linearFrames(x, y, w, h, total)
+
+  return types.Animation(name, spriteSheet, frames, opts)
 })
 
 types.AnimationState = function (animations) {

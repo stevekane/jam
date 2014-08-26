@@ -1,6 +1,5 @@
 var test             = require("tape")
 var types            = require("../engine/types")
-var pp               = require("../helpers/debug").pp
 var Entity           = types.Entity
 var Vector2          = types.Vector2
 var Vector3          = types.Vector3
@@ -106,8 +105,6 @@ test("linearAnimation produces correct components", function (t) {
   t.same(a.fps, 24, "fps assigned correctly")
   t.same(a.shouldLoop, true, "shouldLoop assigned correctly")
   t.true(!!a.frames,  "defines array of frames")
-
-  pp(a)
 })
 
 test("AnimationState produces correct components", function (t) {

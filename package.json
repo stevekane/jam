@@ -5,7 +5,7 @@
   "main": "jam.js",
   "scripts": {
     "test": "node tests.js",
-    "build": "node scripts/build-lib.js",
+    "build": "node tests && node scripts/build-lib.js",
     "build-engine": "node scripts/build-engine.js",
     "build-vendor": "node scripts/build-vendor.js",
     "build-all": "node scripts/build-vendor.js && node scripts/build-lib.js"

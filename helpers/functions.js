@@ -1,3 +1,5 @@
+'use strict'
+
 var _ = require("lodash")
 
 /**
@@ -33,7 +35,7 @@ functions.hasKey = functions.curry(function (key, obj) {
 functions.find = functions.curry(function (boolFn, ar) {
   var found = undefined
 
-  for (i in ar) {
+  for (var i in ar) {
     if (boolFn(ar[i])) { found = ar[i] } 
   }
   return found 
@@ -46,33 +48,41 @@ functions.compose = function (fns) {
 functions.map = functions.curry(function (fn, ar) {
   var res = []
 
-  for (i in ar) { res.push(fn(ar[i])) }
+  for (var i in ar) { 
+    res.push(fn(ar[i])) 
+  }
   return res
 })
 
 functions.filter = functions.curry(function (fn, ar) {
   var res = []
 
-  for (i in ar) { if (fn(ar[i])) { res.push(ar[i]) }}
+  for (var i in ar) { 
+    if (fn(ar[i], i, ar)) { res.push(ar[i]) }
+  }
   return res
 })
 
-//::fn => (accum, el) -> accum
+//::fn => (accum, el, i, ar) -> accum
 functions.reduce = functions.curry(function (fn, accum, ar) {
-  for (i in ar) { fn(accum, ar[i]) }
+  for (var i in ar) { 
+    accum = fn(accum, ar[i], i, ar) 
+  }
   return accum
 })
 
 functions.forEach = functions.curry(function (fn, ar) {
-  for (i in ar) { fn(ar[i], i) }
+  for (var i in ar) { 
+    fn(ar[i], i, ar) 
+  }
   return ar
 })
 
 functions.mapBy = functions.curry(function (key, list) {
-  return list.reduce(function (hash, el) {
+  return functions.reduce(function (hash, el) {
     hash[key] = el[key] 
     return hash
-  }, {});
+  }, {}, list);
 })
 
 //fill array with results of running provided function n times
@@ -85,31 +95,18 @@ functions.ofSize = functions.curry(function (size, fn) {
   return ar
 })
 
-/**
-  combination of filtering and forEach.  useful for systems that mutate
-  :: boolFn => el -> Boolean
-  :: fn     => el -> el || nothing (this probably performs mutation)
-  we return the provided array for possible composition
-*/
-functions.ifThenDo = functions.curry(function (boolFn, fn, ar) {
-  for (i in ar) { if (boolFn(ar[i])) { fn(ar[i]) }}
-  return ar
-})
-
 functions.forKeys = functions.curry(function (kFn, hash) {
   var ks = functions.keys(hash)
-  var i = 0
 
-  for (i = 0, len = ks.length; i < len; ++i) {
+  for (var i in ar) {
     kFn(ks[i])
   }
 })
 
 functions.forValues = functions.curry(function (vFn, hash) {
   var ks = functions.keys(hash)
-  var i = 0
 
-  for (i = 0, len = ks.length; i < len; ++i) {
+  for (var i in ks) {
     vFn(hash[ks[i]])
   }
 })
@@ -117,9 +114,8 @@ functions.forValues = functions.curry(function (vFn, hash) {
 //kvFn :: k -> v -> nothing (it's forEach baby)
 functions.forKV = functions.curry(function (kvFn, hash) {
   var ks = functions.keys(hash)
-  var i = 0
 
-  for (i = 0, len = ks.length; i < len; ++i) {
+  for (var i in ar) {
     kvFn(ks[i], hash[ks[i]]) 
   }
 })

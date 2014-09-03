@@ -7,3 +7,4 @@ require("./tests/audioPlayer")
 require("./tests/loaders")
 
 require("./helpers/tests/physics")
+require("./helpers/tests/combinators")

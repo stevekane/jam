@@ -19,8 +19,8 @@ var values           = jam.utils.functions.values
 var reduce           = jam.utils.functions.reduce
 var curry            = jam.utils.functions.curry
 var hasKey           = jam.utils.functions.hasKey
-var ifThenDo         = jam.utils.functions.ifThenDo
 var ofSize           = jam.utils.functions.ofSize
+var ifThenDo         = jam.utils.combinators.ifThenDo
 var runParallel      = jam.utils.async.runParallel
 var pp               = jam.utils.debug.pp
 var rgbaToStr        = jam.utils.rendering.rgbaToStr
@@ -49,7 +49,7 @@ var changeColor = function (e) {
 }
 
 var drawUi = function (ui) {
-  ui.innerHTML = "Waiting it out.."  
+  ui.innerHTML = "Time is:  " + performance.now()
 }
 
 var resize = function (e) { 
@@ -64,14 +64,13 @@ var relocate = function (e) {
   return e
 }
 
-var renderSquares = curry(function (ctx, es) {
-  ifThenDo(hasColor, renderSquare(ctx), es)
-  return es
+var renderSquares = curry(function (ctx, ents) {
+  return ifThenDo([hasColor], [renderSquare(ctx)], ents)
 })
 
-var changeColors = ifThenDo(hasColor, changeColor)
-var resizeAll    = ifThenDo(hasSize, resize)
-var relocateAll  = ifThenDo(hasPosition, relocate)
+var changeColors = ifThenDo([hasColor], [changeColor])
+var resizeAll    = ifThenDo([hasSize], [resize])
+var relocateAll  = ifThenDo([hasPosition], [relocate])
 
 //SYSTEMS -- END
 
@@ -80,6 +79,12 @@ var relocateAll  = ifThenDo(hasPosition, relocate)
 //Special Constructors
 
 var makeRandomBox = compose([relocate, BasicBox])
+
+//takes an array of layer names in render order (back-to-front)
+var make2dLayers = reduce(function (layers, name, level) {
+  layers[name] = Layer2d(level, name)
+  return layers
+}, {})
 
 //Special Constructors -- END
 
@@ -97,16 +102,12 @@ var mainLoad = function (scenes, cb) {
   var audioCtx     = new (AudioContext || webkitAudioContext)()
   var targetNode   = document.querySelector("#game")
   var ui           = document.createElement("div")
-  var layers       = {
-    background: Layer2d("background", 0), 
-    entities:   Layer2d("entities", 1),
-    foreground: Layer2d("foreground", 2)
-  }
+  var layers       = make2dLayers(["background", "entities", "foreground"])
   var sceneObjects = {
     audioCtx: audioCtx,
     ui:       ui,
     layers:   layers,
-    entities: ofSize(1000, makeRandomBox),
+    entities: ofSize(10, makeRandomBox),
     cache:    Cache()
   }
 
@@ -122,8 +123,7 @@ var mainLoad = function (scenes, cb) {
     images: runParallel({
       bg:       loadImage(spriteSheets.bg),
       fg:       loadImage(spriteSheets.fg),
-      maptiles: loadImage(spriteSheets.maptiles),
-      //raindrop: loadImage(spriteSheets.raindrop)
+      maptiles: loadImage(spriteSheets.maptiles)
     }),
     sounds: runParallel({
       bgMusic:  loadSound(audioCtx, sounds.bgMusic),
@@ -132,7 +132,7 @@ var mainLoad = function (scenes, cb) {
   }, function (err, assets) {
     if (err) return console.log(err)
 
-    play(audioCtx, assets.sounds.hadouken)
+    loop(audioCtx, assets.sounds.bgMusic)
     extend(sceneObjects.cache.spriteSheets, assets.images) 
     extend(sceneObjects.cache.spriteSheets, assets.sounds) 
     cb(scenes, sceneObjects)
@@ -176,8 +176,7 @@ var bootstrap = function (cb) {
         spriteSheets: {
           maptiles: "/examples/assets/spritesheets/maptiles.png",
           bg:       "/examples/assets/spritesheets/fantasy-bg.jpg",
-          fg:       "/examples/assets/spritesheets/fg-tree-small.png",
-          //raindrop: "/examples/assets/spritesheets/raindrop.png",
+          fg:       "/examples/assets/spritesheets/fg-tree-small.png"
         }
       },
       load:  mainLoad,

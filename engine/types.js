@@ -8,7 +8,7 @@ var types    = {}
 
 //DOM TYPES
 
-types.Layer = curry(function (contextType, name, level) {
+types.Layer = curry(function (contextType, level, name) {
   return {
     name:  name,
     level: level,

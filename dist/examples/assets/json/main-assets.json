@@ -1,0 +1,9 @@
+{
+  "sounds": {
+    "bgMusic": "/examples/assets/sounds/bgm1.mp3"
+  },
+  "spriteSheets": {
+    "bg": "/examples/assets/spritesheets/fantasy-bg.jpg",
+    "fg": "/examples/assets/spritesheets/fg-tree-small.png"
+  }
+}

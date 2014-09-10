@@ -1,3 +1,5 @@
+'use strict'
+
 var fns        = require("../helpers/functions")
 var types      = require("./types")
 var extend     = fns.extend
@@ -8,6 +10,11 @@ var Point3     = types.Point3
 var ColorRgba  = types.ColorRgba
 var components = {}
 
+components.Type = curry(function (type, entity) {
+  entity.type = type
+  return entity
+})
+
 components.Size = curry(function (vector3, entity) {
   extend(entity, {size: clone(vector3)})
   return entity
@@ -15,6 +22,23 @@ components.Size = curry(function (vector3, entity) {
 
 components.Position = curry(function (point3, entity) {
   extend(entity, {position: clone(point3)})
+  return entity
+})
+
+components.Velocity = curry(function (point3, entity) {
+  extend(entity, {velocity: clone(point3)})
+  return entity
+})
+
+components.Acceleration = curry(function (point3, entity) {
+  extend(entity, {acceleration: clone(point3)})
+  return entity
+})
+
+components.BasicGravity = curry(function (coeff, entity) {
+  var acceleration = Point3(0, coeff, 0)
+
+  extend(entity, {acceleration: acceleration})
   return entity
 })
 

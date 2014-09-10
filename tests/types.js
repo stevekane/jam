@@ -12,6 +12,7 @@ var linearAnimation  = types.linearAnimation
 var AnimationState   = types.AnimationState
 var Layer            = types.Layer
 var Layer2d          = types.Layer2d
+var Cache            = types.Cache
 
 test("Entity adds uuid field to object", function (t) {
   var e = Entity()
@@ -126,6 +127,15 @@ test("AnimationState produces correct components", function (t) {
   t.same(as.currentIndex, null, "sets currentIndex correctly")
   t.same(as.nextFrameDelta, null, "sets nextFrameDelta, correctly")
   t.same(as.animations, animations, "sets animations correctly")
+})
+
+test("Cache produces correct components", function (t) {
+  var c = Cache()
+
+  t.plan(3)
+  t.true(typeof c.spriteSheets === "object", "spritesheets object created")
+  t.true(typeof c.sounds === "object", "sounds object created")
+  t.true(typeof c.json === "object", "json object created")
 })
 
 //TODO

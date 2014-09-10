@@ -31,6 +31,10 @@ functions.hasKey = functions.curry(function (key, obj) {
   return obj.hasOwnProperty(key)
 })
 
+functions.hasKeyVal = functions.curry(function (key, val, obj) {
+  return obj[key] === val
+})
+
 //returns either found element or undefined
 functions.find = functions.curry(function (boolFn, ar) {
   var found = undefined
@@ -41,9 +45,20 @@ functions.find = functions.curry(function (boolFn, ar) {
   return found 
 })
 
+//TODO change to look like thread in reverse?
 functions.compose = function (fns) {
   return _.compose.apply(null, fns)  
 }
+
+//same as compose but functions execute left-to-right
+functions.thread = functions.curry(function (fns, target) {
+  var output = target
+
+  for (var i in fns) {
+    output = fns[i](output) 
+  }
+  return output
+})
 
 functions.map = functions.curry(function (fn, ar) {
   var res = []
@@ -115,9 +130,21 @@ functions.forValues = functions.curry(function (vFn, hash) {
 functions.forKV = functions.curry(function (kvFn, hash) {
   var ks = functions.keys(hash)
 
-  for (var i in ar) {
+  for (var i in ks) {
     kvFn(ks[i], hash[ks[i]]) 
   }
+})
+
+//kvfn :: -> k -> v -> *
+functions.transformHash = functions.curry(function (kvfn, hash) {
+  var ks     = functions.keys(hash)
+  var output = {}
+
+  for (var i in ks) {
+    output[ks[i]] = kvfn(ks[i], hash[ks[i]])
+  }
+
+  return output
 })
 
 module.exports = functions

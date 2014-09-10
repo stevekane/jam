@@ -1,7 +1,8 @@
-var fns   = require("../helpers/functions")
-var curry = fns.curry
+var fns     = require("../helpers/functions")
+var curry   = fns.curry
+var loaders = {}
 
-var loadXhr = curry(function (type, path, cb) {
+loaders.loadXhr = curry(function (type, path, cb) {
   var xhr     = new XMLHttpRequest
 
   xhr.responseType = type
@@ -11,7 +12,9 @@ var loadXhr = curry(function (type, path, cb) {
   xhr.send(null)
 })
 
-var loadImage = curry(function (path, cb) {
+loaders.loadJSON = loaders.loadXhr("json")
+
+loaders.loadImage = curry(function (path, cb) {
   var i       = new Image
   var onload  = function () { cb(null, i) }
   var onerror = function () { cb(new Error("Could not load " + path)) }
@@ -21,8 +24,8 @@ var loadImage = curry(function (path, cb) {
   i.src     = path
 })
 
-var loadSound = curry(function (audioCtx, path, cb) {
-  loadXhr("arraybuffer", path, function (err, binary) {
+loaders.loadSound = curry(function (audioCtx, path, cb) {
+  loaders.loadXhr("arraybuffer", path, function (err, binary) {
     if (err) return cb(err)
 
     var decodeSuccess = function (buffer) {
@@ -34,6 +37,4 @@ var loadSound = curry(function (audioCtx, path, cb) {
   })
 })
 
-module.exports.loadImage = loadImage
-module.exports.loadSound = loadSound
-module.exports.loadXhr   = loadXhr
+module.exports = loaders

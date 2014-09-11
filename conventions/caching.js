@@ -44,23 +44,19 @@ var caching         = {}
  * path:     path to the assets JSON
  * cb:       function called when fetch/caching complete
  */
-caching.fetchAndCache = curry(function (audioCtx, cache, path, cb) {
-  loadJSON(path, function (err, json) {
-    if (err) return cb(err)
+caching.fetchAndCache = curry(function (audioCtx, cache, assets, cb) {
+  var soundLoads       = transformValues(loadSound(audioCtx), assets.sounds || {})
+  var spriteSheetLoads = transformValues(loadImage, assets.spriteSheets || {})
+  var jsonLoads        = transformValues(loadJSON, assets.json || {})
 
-    var soundLoads       = transformValues(loadSound(audioCtx), json.sounds || {})
-    var spriteSheetLoads = transformValues(loadImage, json.spriteSheets || {})
-    var jsonLoads        = transformValues(loadJSON, json.json || {})
-
-    runParallel({
-      sounds:       runParallel(soundLoads),
-      spriteSheets: runParallel(spriteSheetLoads),
-      json:         runParallel(jsonLoads)
-    }, function (err, assets) {
-      if (err) return cb(err) 
-      extend(cache, assets)
-      return cb(null, assets)
-    })
+  runParallel({
+    sounds:       runParallel(soundLoads),
+    spriteSheets: runParallel(spriteSheetLoads),
+    json:         runParallel(jsonLoads)
+  }, function (err, assets) {
+    if (err) return cb(err) 
+    extend(cache, assets)
+    return cb(null, assets)
   })
 })
 

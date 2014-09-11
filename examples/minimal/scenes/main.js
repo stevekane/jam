@@ -34,7 +34,6 @@ var ofSize           = jam.utils.functions.ofSize
 var thread           = jam.utils.functions.thread
 var ifThenDo         = jam.utils.combinators.ifThenDo
 var runParallel      = jam.utils.async.runParallel
-var fetchAndCache    = jam.conventions.caching.fetchAndCache
 var randomFloored    = jam.utils.random.randomFloored
 var play             = jam.audioPlayer.play
 var loop             = jam.audioPlayer.loop
@@ -100,17 +99,23 @@ main.assets = {
   spriteSheets: {
     bg: "/examples/assets/spritesheets/fantasy-bg.jpg",
     fg: "/examples/assets/spritesheets/fg-tree-small.png"
-  }
+  },
+  json: {}
 }
 
 main.setup = function (game) {
+  var width  = game.size.x
+  var height = game.size.y
+
   game.sceneObjects = {
     camera:   Camera(Vector3(width, height, 0), Vector3(0, 0, 0)),
     layers:   make2dLayers(["bg", "entities", "fg"]),
     entities: ofSize(400, makeRain)
   }
 
-  forValues(attachLayer(game.targetNode), layers)
+  forValues(attachLayer(game.targetNode), game.sceneObjects.layers)
+  renderImageLayer(game.sceneObjects.layers.bg, game.cache.spriteSheets.bg)
+  renderImageLayer(game.sceneObjects.layers.fg, game.cache.spriteSheets.fg)
 }
 
 main.update = function (dT, game) {
@@ -125,18 +130,18 @@ main.renderWhileLoading = function (dT, game) {
   console.log("whatever i'm loading ok")
 }
 
+main.renderWhilePaused = function (dT, game) {
+  console.log("paused")
+}
+
 //called as quickly as possible to draw (raf)
 main.render = function (dT, game) {
   var layers   = game.sceneObjects.layers
   var entities = game.sceneObjects.entities
-  var cache    = game.sceneObjects.cache
+  var cache    = game.cache
 
   clearLayer(layers.entities)
-  clearLayer(layers.bg)
-  clearLayer(layers.fg)
-  renderImageLayer(layers.bg, cache.spriteSheets.bg)
   renderSquares(layers.entities, entities)
-  renderImageLayer(layers.fg, cache.spriteSheets.fg)
 }
 
 module.exports = main

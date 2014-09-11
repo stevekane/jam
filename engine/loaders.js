@@ -1,6 +1,9 @@
-var fns     = require("../helpers/functions")
-var curry   = fns.curry
-var loaders = {}
+var fns             = require("../helpers/functions")
+var async           = require("../helpers/async")
+var curry           = fns.curry
+var transformValues = fns.transformValues
+var runParallel     = async.runParallel
+var loaders         = {}
 
 loaders.loadXhr = curry(function (type, path, cb) {
   var xhr     = new XMLHttpRequest
@@ -35,6 +38,18 @@ loaders.loadSound = curry(function (audioCtx, path, cb) {
 
     audioCtx.decodeAudioData(binary, decodeSuccess, decodeFailure)
   })
+})
+
+loaders.loadAssetsHash = curry(function (audioCtx, assets, cb) {
+  var soundLoads       = transformValues(loaders.loadSound(audioCtx), assets.sounds)
+  var spriteSheetLoads = transformValues(loaders.loadImage, assets.spriteSheets)
+  var jsonLoads        = transformValues(loaders.loadJSON, assets.json)
+
+  runParallel({
+    sounds:       runParallel(soundLoads),
+    spriteSheets: runParallel(spriteSheetLoads),
+    json:         runParallel(jsonLoads)
+  }, cb)
 })
 
 module.exports = loaders

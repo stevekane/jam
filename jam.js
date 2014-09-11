@@ -4,6 +4,7 @@ jam.types       = require("./engine/types"),
 jam.components  = require("./engine/components"),
 jam.assemblages = require("./engine/assemblages"),
 jam.systems     = require("./engine/systems")
+jam.game       = require("./engine/game")
 jam.loaders     = require("./engine/loaders")
 jam.audioPlayer = require("./engine/audioPlayer")
 jam.conventions = {

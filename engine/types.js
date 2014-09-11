@@ -124,4 +124,20 @@ types.ColorRgba = curry(function (r,g,b,a) {
   }
 })
 
+types.Game = curry(function (targetNode, audioCtx, scenes) {
+  return {
+    targetNode:   targetNode,
+    audioCtx:     audioCtx,
+    scenes:       scenes,
+    cache:        types.Cache(),
+    activeScene:  null,
+    isPaused:     false,
+    sceneObjects: {},
+    size:         {
+      x: 640,
+      y: 480
+    },
+  }
+})
+
 module.exports = types

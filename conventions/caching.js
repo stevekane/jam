@@ -26,36 +26,17 @@
  *    shoved into a cache by their keynames.  
  */
 
-var loaders       = require("../engine/loaders")
-var async         = require("../helpers/async")
-var functions     = require("../helpers/functions")
-var loadJSON      = loaders.loadJSON
-var loadImage     = loaders.loadImage
-var loadSound     = loaders.loadSound
-var runParallel   = async.runParallel
-var runSeries     = async.runSeries
-var extend        = functions.extend
-var transformHash = functions.transformHash
-var curry         = functions.curry
-var caching       = {}
-
-var buildSoundLoads = function (audioCtx, sounds) {
-  return transformHash(function (k, v) {
-    return loadSound(audioCtx, v)
-  }, sounds || {})
-}
-
-var buildSpriteSheetLoads = function (spriteSheets) {
-  return transformHash(function (k, v) {
-    return loadImage(v)
-  }, spriteSheets || {})
-}
-
-var buildJsonLoads = function (jsons) {
-  return transformHash(function (k, v) {
-    return loadJSON(v)
-  }, jsons || {})
-}
+var loaders         = require("../engine/loaders")
+var async           = require("../helpers/async")
+var functions       = require("../helpers/functions")
+var loadJSON        = loaders.loadJSON
+var loadImage       = loaders.loadImage
+var loadSound       = loaders.loadSound
+var runParallel     = async.runParallel
+var extend          = functions.extend
+var transformValues = functions.transformValues
+var curry           = functions.curry
+var caching         = {}
 
 /*
  * audioCtx: instance of AudioContext
@@ -66,9 +47,10 @@ var buildJsonLoads = function (jsons) {
 caching.fetchAndCache = curry(function (audioCtx, cache, path, cb) {
   loadJSON(path, function (err, json) {
     if (err) return cb(err)
-    var soundLoads       = buildSoundLoads(audioCtx, json.sounds)
-    var spriteSheetLoads = buildSpriteSheetLoads(json.spriteSheets)
-    var jsonLoads        = buildJsonLoads(json.json)
+
+    var soundLoads       = transformValues(loadSound(audioCtx), json.sounds || {})
+    var spriteSheetLoads = transformValues(loadImage, json.spriteSheets || {})
+    var jsonLoads        = transformValues(loadJSON, json.json || {})
 
     runParallel({
       sounds:       runParallel(soundLoads),

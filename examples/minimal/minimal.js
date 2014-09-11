@@ -147,26 +147,28 @@ var mainLoad = function (scenes, cb) {
   attachUi(targetNode, ui)
 
   fetchAndCache(audioCtx, cache, assetPath, function (err, assets) {
-    var completionTime = performance.now()
-
-    //loop(audioCtx, assets.sounds.bgMusic)
-    return cb(completionTime, scenes, sceneObjects)
+    return cb(scenes, sceneObjects)
   })
 }
 
-var mainPlay = function (oldTime, scenes, sceneObjects) {
+var mainUpdate = function (oldTime, scenes, sceneObjects) {
+  var entities = sceneObjects.entities
+  var now      = performance.now()
+  var dT       = now - oldTime
+
+  updatePhysics(dT, entities)
+  recycleRain(sceneObjects.camera.size.y, entities)
+
+  window.setTimeout(function () { mainUpdate(now, scenes, sceneObjects) }, 25)
+}
+
+//called as quickly as possible to draw (raf)
+var mainRender = function (oldTime, sceneObjects) {
   var layers   = sceneObjects.layers
   var entities = sceneObjects.entities
   var now      = performance.now()
   var dT       = now - oldTime
 
-  //UPDATES
-  updatePhysics(dT, entities)
-  recycleRain(sceneObjects.camera.size.y, entities)
-  //handleCollisions(entities)
-  //UPDATES -- END
-
-  //RENDERING
   clearLayer(layers.entities)
   clearLayer(layers.background)
   clearLayer(layers.foreground)
@@ -174,9 +176,15 @@ var mainPlay = function (oldTime, scenes, sceneObjects) {
   renderSquares(layers.entities, entities)
   renderImageLayer(layers.foreground, sceneObjects.cache.spriteSheets.fg)
   drawUi(dT, sceneObjects.ui)
-  //RENDERING -- END
 
-  raf(function () { mainPlay(now, scenes, sceneObjects) })
+  raf(function () { mainRender(now, sceneObjects) })
+}
+
+var mainPlay = function (scenes, sceneObjects) {
+  var startTime = performance.now()
+
+  mainUpdate(startTime, scenes, sceneObjects)
+  mainRender(startTime, sceneObjects)
 }
 
 var mainPause = function (scenes, sceneObjects) {}

@@ -136,12 +136,24 @@ functions.forKV = functions.curry(function (kvFn, hash) {
 })
 
 //kvfn :: -> k -> v -> *
-functions.transformHash = functions.curry(function (kvfn, hash) {
+functions.transformHash = functions.curry(function (kvFn, hash) {
   var ks     = functions.keys(hash)
   var output = {}
 
   for (var i in ks) {
-    output[ks[i]] = kvfn(ks[i], hash[ks[i]])
+    output[ks[i]] = kvFn(ks[i], hash[ks[i]])
+  }
+
+  return output
+})
+
+//vFn :: -> v -> *
+functions.transformValues = functions.curry(function (vFn, hash) {
+  var ks     = functions.keys(hash)
+  var output = {}
+
+  for (var i in ks) {
+    output[ks[i]] = vFn(hash[ks[i]])
   }
 
   return output

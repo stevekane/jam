@@ -27,6 +27,16 @@ functions.cloneDeep = _.cloneDeep
 functions.reverse   = _.reverse
 functions.range     = _.range
 
+functions.pick = functions.curry(function (keys, obj) {
+  var picked = {}
+
+  for (var i in keys) {
+    picked[keys[i]] = obj[keys[i]] 
+  }
+
+  return picked
+})
+
 functions.hasKey = functions.curry(function (key, obj) {
   return obj.hasOwnProperty(key)
 })

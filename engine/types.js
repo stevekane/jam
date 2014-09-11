@@ -1,7 +1,9 @@
 var uuid     = require("node-uuid")
 var fns      = require("../helpers/functions")
 var makeUuid = uuid.v4
+var pick     = fns.pick
 var curry    = fns.curry
+var compose  = fns.compose
 var range    = fns.range
 var reduce   = fns.reduce
 var types    = {}
@@ -19,6 +21,9 @@ types.Layer = curry(function (contextType, level, name) {
 types.Layer2d = types.Layer("2d")
 
 //DOM TYPES -- END
+
+//plucks the listed keys off provided object
+types.Scene = pick(["assets", "setup", "render", "update", "renderWhileLoading"])
 
 types.Cache = function () {
   return {

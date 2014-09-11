@@ -13,6 +13,7 @@ var AnimationState   = types.AnimationState
 var Layer            = types.Layer
 var Layer2d          = types.Layer2d
 var Cache            = types.Cache
+var Scene            = types.Scene
 
 test("Entity adds uuid field to object", function (t) {
   var e = Entity()
@@ -136,6 +137,24 @@ test("Cache produces correct components", function (t) {
   t.true(typeof c.spriteSheets === "object", "spritesheets object created")
   t.true(typeof c.sounds === "object", "sounds object created")
   t.true(typeof c.json === "object", "json object created")
+})
+
+test("Scene plucks only the correct keys from hash", function (t) {
+  var obj = {
+    assets:  {}, 
+    setup:   function () {}, 
+    render:  function () {}, 
+    update:  function () {}, 
+    invalid: function () {}
+  } 
+  var scene = Scene(obj)
+
+  t.plan(5)
+  t.same(scene.assets, obj.assets, "assets object present")
+  t.same(scene.setup, obj.setup, "setup function present")
+  t.same(scene.render, obj.render, "render function present")
+  t.same(scene.update, obj.update, "update function present")
+  t.true(scene.invalid === undefined, "invalid function not present")
 })
 
 //TODO

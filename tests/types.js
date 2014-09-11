@@ -14,6 +14,7 @@ var Layer            = types.Layer
 var Layer2d          = types.Layer2d
 var Cache            = types.Cache
 var Scene            = types.Scene
+var Game             = types.Game
 
 test("Entity adds uuid field to object", function (t) {
   var e = Entity()
@@ -155,6 +156,24 @@ test("Scene plucks only the correct keys from hash", function (t) {
   t.same(scene.render, obj.render, "render function present")
   t.same(scene.update, obj.update, "update function present")
   t.true(scene.invalid === undefined, "invalid function not present")
+})
+
+test("Game object contains expected values", function (t) {
+  var audioCtx   = {}
+  var targetNode = {}
+  var scenes     = {}
+  var game       = Game(targetNode, audioCtx, scenes)
+
+  t.plan(8)
+  t.same(game.audioCtx, audioCtx, "audioCtx present")
+  t.same(game.targetNode, targetNode, "targetNode present")
+  t.same(game.scenes, scenes, "scenes present")
+  t.equal(typeof game.cache, "object", "Cache present")
+  t.same(game.activeScene, null, "activeScene present")
+  t.same(game.isPaused, false, "isPaused present")
+  t.equal(typeof game.sceneObjects, "object", "sceneObjects present")
+  t.equal(typeof game.size, "object", "size present")
+
 })
 
 //TODO

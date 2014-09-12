@@ -6,16 +6,15 @@ body {
   position: relative;
   margin-left: auto;
   margin-right: auto;
+  height: 100%;
 }
 
 #game canvas {
-  position: absolute;
-  top: 0px;
-  left: 0px
+  margin-left: auto;
+  margin-right: auto;
 }
 
 #game .ui {
-  position: absolute;
-  top: 0px;
-  left: 0px
+  margin-left: auto;
+  margin-right: auto;
 }

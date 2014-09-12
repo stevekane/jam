@@ -10,11 +10,11 @@ var linearFrames     = types.linearFrames
 var Animation        = types.Animation
 var linearAnimation  = types.linearAnimation
 var AnimationState   = types.AnimationState
-var Layer            = types.Layer
-var Layer2d          = types.Layer2d
 var Cache            = types.Cache
 var Scene            = types.Scene
 var Game             = types.Game
+var World2D          = types.World2D
+var Camera2D         = types.Camera2D
 
 test("Entity adds uuid field to object", function (t) {
   var e = Entity()
@@ -160,28 +160,48 @@ test("Scene plucks only the correct keys from hash", function (t) {
 
 test("Game object contains expected values", function (t) {
   var audioCtx   = {}
-  var targetNode = {}
+  var visualCtx  = {}
   var scenes     = {}
-  var game       = Game(targetNode, audioCtx, scenes)
+  var game       = Game(visualCtx, audioCtx, scenes)
 
-  t.plan(8)
+  t.plan(6)
   t.same(game.audioCtx, audioCtx, "audioCtx present")
-  t.same(game.targetNode, targetNode, "targetNode present")
+  t.same(game.visualCtx, visualCtx, "visualCtx present")
   t.same(game.scenes, scenes, "scenes present")
   t.equal(typeof game.cache, "object", "Cache present")
   t.same(game.activeScene, null, "activeScene present")
-  t.same(game.isPaused, false, "isPaused present")
-  t.equal(typeof game.sceneObjects, "object", "sceneObjects present")
-  t.equal(typeof game.size, "object", "size present")
+  t.equal(typeof game.world, "object", "world present")
 
 })
 
-//TODO
-//This test would need to run inside the DOM.  This should be split out?
-//test("Layer produces correct components", function (t) {
-//})
+test("World2D ", function (t) {
+  var props = {
+    size:        {},
+    camera:      {},
+    entites:     [],
+    imageLayers: {},
+    tileLayers:  {},
+    uiLayers:    {}
+  }
+  var world = World2D(props)
 
-//TODO
-//This test would need to run inside the DOM.  This should be split out?
-//test("Layer2d produces correct components", function (t) {
-//})
+  t.plan(6)
+
+  t.same(world.size, props.size, "size object present")
+  t.same(world.camera, props.camera, "camera object present")
+  t.same(world.entities, props.entities, "entities array present")
+  t.same(world.imageLayers, props.imageLayers, "imageLayers object present")
+  t.same(world.tileLayers, props.tileLayers, "tileLayers object present")
+  t.same(world.uiLayers, props.uiLayers, "uiLayers object present")
+})
+
+test("Camera2D", function (t) {
+  var c = Camera2D(0, 20, 640, 480)
+
+  t.plan(5)
+  t.same(c.position.x, 0, "x position set correctly")
+  t.same(c.position.y, 20, "y position set correctly")
+  t.same(c.size.x, 640, "x size set correctly")
+  t.same(c.size.y, 480, "y size set correctly")
+  t.same(c.rotation, 0, "rotation set to 0 as default")
+})

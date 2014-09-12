@@ -3,27 +3,11 @@ var fns      = require("../helpers/functions")
 var makeUuid = uuid.v4
 var pick     = fns.pick
 var curry    = fns.curry
-var compose  = fns.compose
 var range    = fns.range
 var reduce   = fns.reduce
 var types    = {}
 
-//DOM TYPES
-
-types.Layer = curry(function (contextType, level, name) {
-  return {
-    name:  name,
-    level: level,
-    ctx:   document.createElement("canvas").getContext(contextType)
-  }
-})
-
-types.Layer2d = types.Layer("2d")
-
-//DOM TYPES -- END
-
-//plucks the listed keys off provided object
-types.Scene = pick(["assets", "setup", "render", "update", "renderWhileLoading"])
+types.Scene = pick(["assets", "setup", "render", "update"])
 
 types.Cache = function () {
   return {
@@ -124,20 +108,37 @@ types.ColorRgba = curry(function (r,g,b,a) {
   }
 })
 
-types.Game = curry(function (targetNode, audioCtx, scenes) {
+types.Game = curry(function (visualCtx, audioCtx, scenes) {
   return {
-    targetNode:   targetNode,
+    visualCtx:    visualCtx,
     audioCtx:     audioCtx,
     scenes:       scenes,
     cache:        types.Cache(),
     activeScene:  null,
-    isPaused:     false,
-    sceneObjects: {},
-    size:         {
-      x: 640,
-      y: 480
-    },
+    world:        {}
   }
 })
+
+types.ImageLayer = curry(function (image) {
+  return {
+    image: image,
+  }  
+})
+
+types.TileLayer = curry(function () {})
+
+types.UILayer = curry(function () {})
+
+types.Camera2D = curry(function (x, y, width, height) {
+  return {
+    size:     types.Vector2(width, height),
+    position: types.Vector2(x, y),
+    rotation: 0
+  }
+})
+
+types.World2D = pick([
+  "size", "camera", "entities", "imageLayers", "tileLayers", "uiLayers"
+])
 
 module.exports = types

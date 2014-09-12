@@ -1,6 +1,7 @@
 'use strict'
 
-var raf            = require("raf-shim")(window).requestAnimationFrame
+var renderFn       = require("raf-shim")(window).requestAnimationFrame
+var updateFn       = window.setTimeout
 var types          = require("./types")
 var loaders        = require("./loaders")
 var fns            = require("../helpers/functions")
@@ -15,7 +16,7 @@ var update = function (oldTime, game) {
   var dT  = now - oldTime
 
   game.activeScene.update(dT, game)
-  window.setTimeout(update, 25, now, game)
+  updateFn(function () { update(now, game) }, 25)
 }
 
 var render = function (oldTime, game) {
@@ -23,7 +24,7 @@ var render = function (oldTime, game) {
   var dT  = now - oldTime
 
   game.activeScene.render(dT, game)
-  raf(function () { render(now, game) })
+  renderFn(function () { render(now, game) })
 }
 
 gameFns.changeScene = curry(function (game, sceneName, cb) {

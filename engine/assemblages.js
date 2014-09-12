@@ -17,24 +17,6 @@ var curry          = fns.curry
 var thread         = fns.thread
 var assemblages    = {}
 
-//camera's spawn with zero velocity and acceleration
-assemblages.Camera = curry(function (size, pos) {
-  return thread([
-    Type("camera"),
-    Size(size),
-    Position(pos),
-    Velocity(Point3(0, 0, 0)),
-    Acceleration(Point3(0, 0, 0)),
-  ], Entity())
-})
-
-assemblages.World = function (size) {
-  return thread([
-    Type("world"),
-    Size(size) 
-  ], Entity())
-}
-
 assemblages.BasicBox = function (pos) {
   return thread([
     Size(Vector3(24,24,24)),

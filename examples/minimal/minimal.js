@@ -1,8 +1,8 @@
 'use strict'
 
 var jam       = require("../../jam")
-var Scene     = jam.types.Scene
-var Game      = jam.types.Game
+var Scene     = jam.types.game.Scene
+var Game      = jam.types.game.Game
 var gameFns   = jam.game
 var startGame = gameFns.startGame
 
@@ -14,7 +14,7 @@ var bootstrap = function () {
   var visualCtx = canvas.getContext("2d")
   var audioCtx  = new (AudioContext || webkitAudioContext)()
   var scenes = {
-    main: Scene(require("./scenes/main"))
+    main: require("./scenes/main")
   }
   var game = Game(visualCtx, audioCtx, scenes)
 

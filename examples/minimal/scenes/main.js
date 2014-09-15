@@ -2,14 +2,13 @@
 
 var jam              = require("../../../jam")
 var Entity           = jam.types.Entity
-var Vector2          = jam.types.Vector2
-var ImageLayer       = jam.types.ImageLayer
-var TileLayer        = jam.types.TileLayer
-var UILayer          = jam.types.UILayer
-var ColorRgba        = jam.types.ColorRgba
-var Cache            = jam.types.Cache
-var Camera2D         = jam.types.Camera2D
-var World2D          = jam.types.World2D
+var Vec2             = jam.types.matrices.Vec2
+var ImageLayer       = jam.types.rendering.ImageLayer
+var TileLayer        = jam.types.rendering.TileLayer
+var UILayer          = jam.types.rendering.UILayer
+var ColorRgba        = jam.types.rendering.ColorRgba
+var Camera2D         = jam.types.rendering.Camera2D
+var World2D          = jam.types.rendering.World2D
 var Type             = jam.components.Type
 var Size             = jam.components.Size
 var ColorFromRgba    = jam.components.ColorFromRgba
@@ -50,7 +49,7 @@ main.assets = {
 //create a canvas at all or simply store the root node
 //to be used by a scene at its discretion?
 main.setup = function (game) {
-  var size        = Vector2(1920, 1080)
+  var size        = Vec2(1920, 1080)
   var camera      = Camera2D(0, 0, 640, 480)
   var entities    = []
   var tileLayers  = {}

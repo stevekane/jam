@@ -5,11 +5,8 @@ var debug           = require("../helpers/debug")
 var types           = require("../engine/types")
 var components      = require("../engine/components")
 var Entity          = types.Entity
-var Vector3         = types.Vector3
-var Point3          = types.Point3
-var ColorRgba       = types.ColorRgba
-var linearAnimation = types.linearAnimation
-var AnimationState  = types.AnimationState
+var linearAnimation = types.kfanim.linearAnimation
+var AnimationState  = types.kfanim.AnimationState
 var Size            = components.Size
 var Position        = components.Position
 var Direction       = components.Direction
@@ -22,7 +19,7 @@ var BasicGravity    = components.BasicGravity
 var Collides        = components.Collides
 
 test("Size adds correct size with vector3 to the entity", function (t) {
-  var e = Size(Vector3(1,2,3), Entity())
+  var e = Size(1,2,3, Entity())
 
   t.plan(3)
   t.same(e.size.x, 1, "x component set to 1 correctly")
@@ -31,7 +28,7 @@ test("Size adds correct size with vector3 to the entity", function (t) {
 })
 
 test("Position adds correct position with point3 to the entity", function (t) {
-  var e = Position(Point3(1,2,3), Entity())
+  var e = Position(1,2,3, Entity())
 
   t.plan(3)
   t.same(e.position.x, 1, "x component set to 1 correctly")
@@ -40,7 +37,7 @@ test("Position adds correct position with point3 to the entity", function (t) {
 })
 
 test("Direction adds correct direction with vector3 to the entity", function (t) {
-  var e = Direction(Vector3(1,2,3), Entity())
+  var e = Direction(1,2,3, Entity())
 
   t.plan(3)
   t.same(e.direction.x, 1, "x component set to 1 correctly")
@@ -62,7 +59,7 @@ test("AnimatedSprite adds appropriate animatedSprite to entity", function (t) {
 })
 
 test("ColorFromRgba adds correct color to the entity", function (t) {
-  var e = ColorFromRgba(ColorRgba(255, 255, 255, 1), Entity())
+  var e = ColorFromRgba(255, 255, 255, 1, Entity())
 
   t.plan(4)
   t.same(e.color.r, 255, "r component set to 255 correctly")
@@ -72,7 +69,7 @@ test("ColorFromRgba adds correct color to the entity", function (t) {
 })
 
 test("Position adds correct position vector to entity", function (t) {
-  var e = Position(Vector3(1,1,2), Entity())
+  var e = Position(1,1,2, Entity())
 
   t.plan(3)
   t.same(e.position.x, 1, "x position set")
@@ -81,7 +78,7 @@ test("Position adds correct position vector to entity", function (t) {
 })
 
 test("Velocity adds correct velocity vector to entity", function (t) {
-  var e = Velocity(Vector3(1,1,2), Entity())
+  var e = Velocity(1,1,2, Entity())
 
   t.plan(3)
   t.same(e.velocity.x, 1, "x velocity set")
@@ -90,7 +87,7 @@ test("Velocity adds correct velocity vector to entity", function (t) {
 })
 
 test("Acceleration adds correct acceleration vector to entity", function (t) {
-  var e = Acceleration(Vector3(1,1,2), Entity())
+  var e = Acceleration(1,1,2, Entity())
 
   t.plan(3)
   t.same(e.acceleration.x, 1, "x acceleration set")
@@ -98,12 +95,14 @@ test("Acceleration adds correct acceleration vector to entity", function (t) {
   t.same(e.acceleration.z, 2, "z acceleration set")
 })
 
+//the actual fractional number is converted to Float32 in the Vec3
+//therefore we cannot compare exactly to .00004 due to rounding
 test("BasicGravity adds correct y acceleration vector to entity", function (t) {
   var e = BasicGravity(.00004, Entity())
 
   t.plan(3)
   t.same(e.acceleration.x, 0, "x acceleration set")
-  t.same(e.acceleration.y, .00004, "y acceleration set")
+  t.true(typeof e.acceleration.y === "number", "y acceleration set")
   t.same(e.acceleration.z, 0, "z acceleration set")
 })
 

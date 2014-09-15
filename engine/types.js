@@ -81,45 +81,6 @@ types.Entity = function () {
   }
 }
 
-//alternative form for mat3 possibly better?
-types.Mat3 = curry(function (a, b, c, d, e, f, g, h, i) {
-  var out = new Float32Array(9)
-
-  out[0] = a
-  out[1] = b
-  out[2] = c
-  out[3] = d
-  out[4] = e
-  out[5] = f
-  out[6] = g
-  out[7] = h
-  out[8] = i
-
-  aliasProp("xx", 0, out)
-  aliasProp("xy", 1, out)
-  aliasProp("xz", 2, out)
-  aliasProp("yx", 3, out)
-  aliasProp("yy", 4, out)
-  aliasProp("yz", 5, out)
-  aliasProp("zx", 6, out)
-  aliasProp("zy", 7, out)
-  aliasProp("zz", 8, out)
-  return out
-})
-
-types.Vec3 = curry(function (x, y, z) {
-  var out = new Float32Array(3)
-
-  out[0] = x
-  out[1] = y
-  out[2] = z
-
-  aliasProp("x", 0, out)
-  aliasProp("y", 1, out)
-  aliasProp("z", 2, out)
-  return out  
-})
-
 types.Matrix2 = curry(function (a, b, c, d) {
   return [
     [a, b],

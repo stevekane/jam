@@ -6,7 +6,7 @@ var extend     = fns.extend
 var curry      = fns.curry
 var clone      = fns.clone
 var Vec3       = types.matrices.Vec3
-var ColorRgba  = types.ColorRgba
+var ColorRgba  = types.rendering.ColorRgba
 var components = {}
 
 components.Type = curry(function (type, entity) {

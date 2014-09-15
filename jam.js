@@ -14,7 +14,8 @@ jam.utils = {
   random:      require("./helpers/random"),
   functions:   require("./helpers/functions"),
   combinators: require("./helpers/combinators"),
-  async:       require("./helpers/async")
+  async:       require("./helpers/async"),
+  math:        require("./helpers/math")
 }
 
 module.exports = jam

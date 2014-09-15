@@ -27,6 +27,16 @@ functions.cloneDeep = _.cloneDeep
 functions.reverse   = _.reverse
 functions.range     = _.range
 
+//this is used to define getter/setter aliases (mostly for matrices)
+functions.aliasProp = functions.curry(function (aliasName, key, obj) {
+  Object.defineProperty(obj, aliasName, {
+    get: function () { return obj[key] },
+    set: function (v) { return obj[key] = v },
+    enumerable: false
+  }) 
+  return obj
+})
+
 functions.pick = functions.curry(function (keys, obj) {
   var picked = {}
 

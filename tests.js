@@ -8,3 +8,4 @@ require("./tests/loaders")
 
 require("./helpers/tests/physics")
 require("./helpers/tests/combinators")
+require("./helpers/tests/math")

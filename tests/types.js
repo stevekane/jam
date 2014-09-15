@@ -15,6 +15,46 @@ var Scene            = types.Scene
 var Game             = types.Game
 var World2D          = types.World2D
 var Camera2D         = types.Camera2D
+var Vector2          = types.Vector2
+var Matrix2          = types.Matrix2
+var Matrix3          = types.Matrix3
+var Mat3             = types.Mat3
+
+test("Mat3 defines all property aliases correctly", function (t) {
+  var m = Mat3(1,2,3,4,5,6,7,8,9)  
+
+  t.plan(18)
+  t.equal(m.xx, 1)
+  t.equal(m.xy, 2)
+  t.equal(m.xz, 3)
+  t.equal(m.yx, 4)
+  t.equal(m.yy, 5)
+  t.equal(m.yz, 6)
+  t.equal(m.zx, 7)
+  t.equal(m.zy, 8)
+  t.equal(m.zz, 9)
+
+  m.xx++ 
+  m.xy++
+  m.xz++
+  m.yx++
+  m.yy++
+  m.yz++
+  m.zx++
+  m.zy++
+  m.zz++
+
+  t.equal(m.xx, 2)
+  t.equal(m.xy, 3)
+  t.equal(m.xz, 4)
+  t.equal(m.yx, 5)
+  t.equal(m.yy, 6)
+  t.equal(m.yz, 7)
+  t.equal(m.zx, 8)
+  t.equal(m.zy, 9)
+  t.equal(m.zz, 10)
+})
+
 
 test("Entity adds uuid field to object", function (t) {
   var e = Entity()
